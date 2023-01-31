@@ -55,18 +55,18 @@ public class User {
     private String password;
 
     @Column(
-            name = "created",
-            columnDefinition = "TIMESTAMP",
+            name = "account_created",
+            columnDefinition = "TEXT",
             updatable = false
     )
-    private ZonedDateTime account_created;
+    private String account_created;
 
     @Column(
             name = "account_updated",
-            columnDefinition = "TIMESTAMP",
+            columnDefinition = "TEXT",
             updatable = false
     )
-    private ZonedDateTime account_updated;
+    private String account_updated;
 
     public User() {
     }
@@ -121,19 +121,19 @@ public class User {
         this.password = password;
     }
 
-    public ZonedDateTime getAccount_created() {
+    public String getAccount_created() {
         return account_created;
     }
 
-    public void setAccount_created(ZonedDateTime account_created) {
+    public void setAccount_created(String account_created) {
         this.account_created = account_created;
     }
 
-    public ZonedDateTime getAccount_updated() {
+    public String getAccount_updated() {
         return account_updated;
     }
 
-    public void setAccount_updated(ZonedDateTime account_updated) {
+    public void setAccount_updated(String account_updated) {
         this.account_updated = account_updated;
     }
 
