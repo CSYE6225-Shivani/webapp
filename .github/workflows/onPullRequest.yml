@@ -1,8 +1,8 @@
-name: Push Request to Assignment 1
+name: Pull Request to Upstream main
 
 on:
-  push:
-    branches: [ Assignment1 ]
+  pull_request:
+    branches: [ main ]
 
   workflow_dispatch:
 
@@ -67,6 +67,5 @@ jobs:
           mvn -v
           mvn test 
 
-#
-#      - name: Confirm Project run
-#        run: echo "End"
+      - name: Confirm Project run
+        run: echo "End"
