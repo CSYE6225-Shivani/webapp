@@ -16,6 +16,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserServices {
@@ -66,22 +68,41 @@ public class UserServices {
 
     public ResponseEntity<Object> performNullCheck(User user)
     {
+        String regex = "^[A-Za-z]{5,20}$";
+        Pattern p = Pattern.compile(regex);
+        Matcher first_name = p.matcher(user.getFirst_name());
+        Matcher last_name = p.matcher(user.getLast_name());
+
         if(user.getFirst_name() == null
                 || user.getLast_name() == null
                 || user.getUsername() == null ||
                 user.getPassword() == null)
         {
-            return new ResponseEntity<Object>("Please verify if you have provided your firstName, lastName, userName and password",
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",
+                    HttpStatus.NO_CONTENT);
         }
-        else {
+        else if (!first_name.matches()) {
+            return new ResponseEntity<>("First Name cannot have digits or special characters. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
+        }
+        else if (!last_name.matches()) {
+            return new ResponseEntity<>("Last Name cannot have digits or special characters. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
+        }
+        else
+        {
             return new ResponseEntity<Object>(HttpStatus.OK);
         }
     }
 
     public ResponseEntity<Object> emailFormatCheck(User user)
     {
-        if(!EmailValidator.getInstance().isValid(user.getUsername()))
+        String regex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)" +
+                "*@[^-][A-Za-z0-9-]" +
+                "+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+
+        Pattern p = Pattern.compile(regex);
+        Matcher email = p.matcher(user.getUsername());
+
+        if(!email.matches())
         {
             return new ResponseEntity<Object>("Invalid email format.",HttpStatus.BAD_REQUEST);
         }
@@ -113,8 +134,8 @@ public class UserServices {
         user.setLast_name(user.getLast_name());
         user.setUsername(user.getUsername());
         user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt(10)));
-        user.setAccount_created(timeInZ);
-        user.setAccount_updated(timeInZ);
+        user.setAccount_created(timeInZ.toString());
+        user.setAccount_updated(timeInZ.toString());
         userRepository.save(user);
         return new ResponseEntity<Object>("User created successfully!",HttpStatus.CREATED);
     }
@@ -244,9 +265,8 @@ public class UserServices {
 
         else if(performNullCheck(user).getStatusCode() == HttpStatus.BAD_REQUEST)
         {
-            return new ResponseEntity<Object>(
-                    "Please check if firstName, lastName, userName or Pwd is not empty.",
-                    HttpStatus.BAD_REQUEST);
+            ResponseEntity<Object> result = performNullCheck(user);
+            return new ResponseEntity<Object>(result,HttpStatus.BAD_REQUEST);
         }
 
         else
@@ -275,7 +295,7 @@ public class UserServices {
         ZonedDateTime updatedTimeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
         usr.setFirst_name(user.getFirst_name());
         usr.setLast_name(user.getLast_name());
-        usr.setAccount_updated(updatedTimeInZ);
+        usr.setAccount_updated(updatedTimeInZ.toString());
         usr.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 
         userRepository.save(usr);
