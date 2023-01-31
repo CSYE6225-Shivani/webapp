@@ -1,0 +1,72 @@
+name: Push Request to Assignment 1
+
+on:
+  push:
+    branches: [ Assignment1 ]
+
+  workflow_dispatch:
+
+jobs:
+  performCheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Upgrade Env
+        run: |
+          sudo apt-get update
+          sudo apt-get -qy upgrade
+
+      - name: Install Java 11
+        run: |
+          sudo apt-get install -y openjdk-11-jdk
+          java -version
+          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          java -version
+          echo $JAVA_HOME
+          echo $PATH
+
+      - name: Install Maven
+        run: |
+          sudo apt install maven -y
+          mvn -version
+      #          wget https://dlcdn.apache.org/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.tar.gz -P /tmp
+      #          echo "######################################### shivani 1"
+      #          sudo tar -xzvf /tmp/apache-maven-*.tar.gz -C /opt
+      #          echo "######################################### shivani 2"
+      #          sudo ln -s /opt/apache-maven-3.8.7 /opt/maven
+      #          echo "######################################### shivani 3"
+      #          sudo touch /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 4"
+      #          sudo chmod 777 /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 4.1"
+      #          sudo echo "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 5"
+      #          sudo echo "export M2_HOME=/opt/maven" >> /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 5"
+      #          sudo echo "export MAVEN_HOME=/opt/maven" >> /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 6"
+      #          sudo echo "export PATH=${M2_HOME}/bin:${PATH}" >> /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 7"
+      #          source /etc/profile.d/maven.sh
+      #          echo "######################################### shivani 8"
+
+      - name: Upgrade Env 2
+        run: |
+          sudo apt-get update
+          sudo apt-get -qy upgrade
+
+      - name: Run Test
+        run: |
+          pwd
+          find . -name "pom.xml"
+          cd /home/runner/work/webapp/webapp/UserWebApp/
+          ls -ltrh
+          mvn -v
+          mvn test 
+
+#
+#      - name: Confirm Project run
+#        run: echo "End"
