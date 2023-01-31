@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
-    @Query("SELECT u FROM user_details u WHERE u.username = ?1")
+    @Query("SELECT u FROM userEntity u WHERE u.username = ?1")
     Optional<User> findUserByUsername(String username);
 
 }

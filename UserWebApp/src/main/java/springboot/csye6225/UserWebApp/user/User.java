@@ -4,8 +4,8 @@ import javax.persistence.*;
 
 import java.time.ZonedDateTime;
 
-@Entity(name = "user_details")
-@Table(name = "user_details",
+@Entity(name = "userEntity")
+@Table(name = "userTable",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "username_unique",
