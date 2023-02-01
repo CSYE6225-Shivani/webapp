@@ -19,19 +19,19 @@ public class UserController {
         this.userServices = userServices;
     }
 
-    @GetMapping(path = "/healthz")
+    @GetMapping(produces = "application/json",path = "/healthz")
     public ResponseEntity<Object> healthy()
     {
         return new ResponseEntity<Object>("Everything is healthy",HttpStatus.OK);
     }
 
-    @GetMapping(path = "v1/user")
+    @GetMapping(produces = "application/json", path = "v1/user")
     public ResponseEntity<Object> informUser()
     {
         return new ResponseEntity<Object>("Please enter your username in the path and auth your creds",HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(path ="v1/user/{username}")
+    @GetMapping(produces = "application/json",path ="v1/user/{username}")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getUserDetails(@PathVariable("username") String username, HttpServletRequest httpRequest){
         ResponseEntity<Object> request_header = userServices.performBasicAuth(httpRequest);
@@ -57,24 +57,24 @@ public class UserController {
         return userServices.registerNewUser(user);
     }
 
-    @PutMapping(path = "v1/user")
+    @PutMapping(produces = "application/json",path = "v1/user")
     public ResponseEntity<Object> informUserPut()
     {
         return new ResponseEntity<Object>("Please enter your username in the path and authorize your creds",HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping(path = "v1/user/{username}")
+    @PutMapping(produces = "application/json",path = "v1/user/{username}")
     public ResponseEntity<Object> updateUserDetails(@PathVariable("username") String username, HttpServletRequest httpRequest, @RequestBody User user)
     {
         return userServices.updateUserDetails(httpRequest,user,username);
     }
 
-    @DeleteMapping(path = "v1/user/{username}")
+    @DeleteMapping(produces = "application/json",path = "v1/user/{username}")
     public ResponseEntity<Object> deleteUser(@PathVariable("username") String username){
         return new ResponseEntity<Object>("Delete API is not Implemented",HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PatchMapping("v1/user/{username}")
+    @PatchMapping(produces = "application/json",path = "v1/user/{username}")
     public ResponseEntity<Object> patchUser(@PathVariable("username") String username){
         return new ResponseEntity<Object>("Patch API is not Implemented",HttpStatus.NOT_IMPLEMENTED);
     }
