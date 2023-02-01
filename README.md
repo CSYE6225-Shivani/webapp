@@ -16,10 +16,10 @@ Build and Deploy instructions for the web application.
 
 Inside the Spring Boot project directory "UserWebApp", run the below commands:
 1. mvn clean install 
-2. mvn spring-boot:run -Dspring-boot.run.arguments="--HOST_NAME=localhost --DB_PORT=5432 --DB_NAME=databaseName  --DB_USERNAME=roleName --DB_PASSWORD=password"
+2. mvn spring-boot:run -Dspring-boot.run.arguments="--HOST_NAME=localhost --DB_PORT=5432 --API_PORT=port_no --DB_NAME=databaseName  --DB_USERNAME=roleName --DB_PASSWORD=password"
 
 
-REST API Endpoints:
+REST API Endpoints (Change according to Port):
 1. Test Healthy Endpoint
    http://localhost:8080/healthz
 
