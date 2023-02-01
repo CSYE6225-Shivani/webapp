@@ -1,6 +1,5 @@
 package springboot.csye6225.UserWebApp.user;
 
-import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,16 +69,16 @@ public class UserServices {
     {
         String regex = "^[A-Za-z]{5,20}$";
         Pattern p = Pattern.compile(regex);
-        Matcher first_name = p.matcher(user.getFirst_name());
-        Matcher last_name = p.matcher(user.getLast_name());
+
+        Matcher first_name = p.matcher(user.getFirst_name() == null?"":user.getFirst_name());
+        Matcher last_name = p.matcher(user.getLast_name() == null?"": user.getLast_name());
 
         if(user.getFirst_name() == null
                 || user.getLast_name() == null
                 || user.getUsername() == null ||
                 user.getPassword() == null)
         {
-            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",
-                    HttpStatus.NO_CONTENT);
+            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.NO_CONTENT);
         }
         else if (!first_name.matches()) {
             return new ResponseEntity<>("First Name cannot have digits or special characters. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
@@ -100,7 +99,7 @@ public class UserServices {
                 "+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
         Pattern p = Pattern.compile(regex);
-        Matcher email = p.matcher(user.getUsername());
+        Matcher email = p.matcher(user.getUsername() == null?"":user.getUsername());
 
         if(!email.matches())
         {
@@ -245,15 +244,15 @@ public class UserServices {
 
         if(req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST))
         {
-            return req_header;
+            return new ResponseEntity<>(req_header,HttpStatus.BAD_REQUEST);
         }
 
-        else if(!validateUserExists(user.getUsername()) || !username.equals(user.getUsername()))
+        else if(user.getFirst_name() == null
+                || user.getLast_name() == null
+                || user.getUsername() == null ||
+                user.getPassword() == null)
         {
-            return new ResponseEntity<Object>(
-                    "You cannot update username field!",
-                    HttpStatus.FORBIDDEN
-            );
+            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.NO_CONTENT);
         }
 
         else if((user.getAccount_created() != null && (user.getAccount_created().toString().length() != usr.getAccount_created().toString().length())) ||
@@ -261,6 +260,12 @@ public class UserServices {
                 (user.getId()!= null && (user.getId() != usr.getId()) || ((user.getUsername() != null) && !user.getUsername().equals(usr.getUsername()))))
         {
             return new ResponseEntity<Object>("You can only change firstName, lastName or password",HttpStatus.FORBIDDEN);
+        }
+
+        else if(!validateUserExists(user.getUsername()) || !username.equals(user.getUsername()))
+        {
+            return new ResponseEntity<Object>("You cannot update username field!", HttpStatus.FORBIDDEN
+            );
         }
 
         else if(performNullCheck(user).getStatusCode() == HttpStatus.BAD_REQUEST)
