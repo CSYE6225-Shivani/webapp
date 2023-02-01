@@ -144,13 +144,13 @@ public class UserServices {
         String header = request.getHeader("Authorization");
         if(header == null || header.endsWith("0g=="))
         {
-            return new ResponseEntity<Object>("Please provide username and password", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please provide username and password", HttpStatus.UNAUTHORIZED);
         }
         User fetchedUser;
 
         if(header.endsWith("0g=="))
         {
-            return new ResponseEntity<Object>("Please provide username and password", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please provide username and password", HttpStatus.UNAUTHORIZED);
         }
         else if(header != null && header.startsWith("Basic"))
         {
@@ -163,7 +163,7 @@ public class UserServices {
         if(loginDetails.length > 1) {
             //checking if the email is present in the DB
             if (!validateUserExists(loginDetails[0])) {
-                return new ResponseEntity<Object>("User does not exist in the DB", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<Object>("Please check login credentials", HttpStatus.BAD_REQUEST);
             }
 
             //finding the user in the DB
@@ -259,13 +259,17 @@ public class UserServices {
                 (user.getAccount_updated() != null && (user.getAccount_updated().toString().length() != usr.getAccount_updated().toString().length())) ||
                 (user.getId()!= null && (user.getId() != usr.getId()) || ((user.getUsername() != null) && !user.getUsername().equals(usr.getUsername()))))
         {
-            return new ResponseEntity<Object>("You can only change firstName, lastName or password",HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Object>("You can only change firstName, lastName or password",HttpStatus.BAD_REQUEST);
         }
 
-        else if(!validateUserExists(user.getUsername()) || !username.equals(user.getUsername()))
+        else if(req_header.getStatusCode() == HttpStatus.OK && !username.equals(user.getUsername()))
         {
-            return new ResponseEntity<Object>("You cannot update username field!", HttpStatus.FORBIDDEN
-            );
+            return new ResponseEntity<Object>("You are forbidden", HttpStatus.FORBIDDEN);
+        }
+
+        else if(!validateUserExists(user.getUsername()))
+        {
+            return new ResponseEntity<Object>("You cannot update username field!", HttpStatus.BAD_REQUEST);
         }
 
         else if(performNullCheck(user).getStatusCode() == HttpStatus.BAD_REQUEST)
@@ -281,7 +285,7 @@ public class UserServices {
             {
                 return new ResponseEntity<Object>(
                         "You can only update your credentials.",
-                        HttpStatus.FORBIDDEN
+                        HttpStatus.UNAUTHORIZED
                 );
             }
 
