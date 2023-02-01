@@ -1,23 +1,40 @@
 # webapp
 
-Prerequisites for building and deploying your application locally.
+**Tech-Stack used:**
+**Back-end technology:** Spring Boot, Hibernate & Spring Data JPA
+**Database:** Postgres
+
+
+**Prerequisites for building and deploying your application locally.**
 
 1. Install Java 8. 
-    *Link:* https://www.oracle.com/java/technologies/downloads/
+   
+   *Link:* https://www.oracle.com/java/technologies/downloads/
 
 2. Install Maven Version 3.6.3
+   
    *Link:* https://maven.apache.org/install.html
 
 3. Install Postgres
+   
    *Link:* https://www.postgresql.org/download/ 
 
+4. Install Postman or any REST API testing tool.
+  *Link:* https://www.postman.com/downloads/
 
-Build and Deploy instructions for the web application. 
 
-Inside the Spring Boot project directory "UserWebApp", run the below commands:
-1. mvn clean install 
-2. mvn spring-boot:run -Dspring-boot.run.arguments="--HOST_NAME=localhost --DB_PORT=5432 --API_PORT=port_no --DB_NAME=databaseName  --DB_USERNAME=roleName --DB_PASSWORD=password"
+**Build and Deploy instructions for the web application. **
+1. Clone GitHub repository to Desktop:
+   git clone git@github.com:CSYE6225-Shivani/webapp.git
 
+2. Go inside the project directory:
+   cd/Desktop/webapp/UserWebApp
+
+3. Run command - mvn clean install
+   
+4. "--HOST_NAME=localhost --DB_PORT=5432 --API_PORT=8080 --DB_NAME=userdatabase  --DB_USERNAME=shivanichavan --DB_PASSWORD=password"
+
+5. Open POSTMAN and test below endpoints
 
 REST API Endpoints (Change according to Port):
 1. Test Healthy Endpoint
