@@ -35,6 +35,6 @@ class AppApplicationTests {
 
 	@Test
 	public void demoTest(){
-		assert (1 == 1);
+		assert (1 == 2);
 	}
 }
