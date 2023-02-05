@@ -25,6 +25,10 @@ public class User {
             strategy = GenerationType.SEQUENCE,
             generator = "user_sequence"
     )
+    @Column(
+            name = "id",
+            updatable = false
+    )
     private Long id;
 
     @Column(
