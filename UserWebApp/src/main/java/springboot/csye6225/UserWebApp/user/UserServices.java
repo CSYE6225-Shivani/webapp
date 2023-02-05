@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @Service
 public class UserServices {
 
-    private UserRepository userRepository;
+    public UserRepository userRepository;
 
     @Autowired
     public UserServices(UserRepository userRepository) {
@@ -139,6 +139,22 @@ public class UserServices {
         return new ResponseEntity<Object>("User created successfully!",HttpStatus.CREATED);
     }
 
+    public User fetchUser(String username) {
+        User loggedInUser = new User();
+        List<User> userList;
+
+        userList = getAllUsersInDB();
+
+        for(User usr:userList)
+        {
+            if(usr.getUsername().equals(username))
+            {
+                loggedInUser = usr;
+            }
+        }
+        return loggedInUser;
+    }
+
     public ResponseEntity<Object> performBasicAuth(HttpServletRequest request) {
         String loginDetails[];
         String header = request.getHeader("Authorization");
@@ -181,22 +197,6 @@ public class UserServices {
         return new ResponseEntity<Object>("Please check if username and pwd is provided for authentication",HttpStatus.UNAUTHORIZED);
     }
 
-    public User fetchUser(String username) {
-        User loggedInUser = new User();
-        List<User> userList;
-
-        userList = getAllUsersInDB();
-
-        for(User usr:userList)
-        {
-            if(usr.getUsername().equals(username))
-            {
-                loggedInUser = usr;
-            }
-        }
-        return loggedInUser;
-    }
-
     private boolean validateUserExists(String usrname) {
         if(usrname == null)
             return false;
@@ -228,7 +228,7 @@ public class UserServices {
         return userRepository.findAll();
     }
 
-    private String[] decodeLogin(String header) {
+    public String[] decodeLogin(String header) {
         String[] credentials = header.split(" ");
         String getPassword;
         byte[] getPwd;
@@ -257,7 +257,7 @@ public class UserServices {
 
         else if((user.getAccount_created() != null && (user.getAccount_created().toString().length() != usr.getAccount_created().toString().length())) ||
                 (user.getAccount_updated() != null && (user.getAccount_updated().toString().length() != usr.getAccount_updated().toString().length())) ||
-                (user.getId()!= null && (user.getId() != usr.getId()) || ((user.getUsername() != null) && !user.getUsername().equals(usr.getUsername()))))
+                (user.getId() != null && (user.getId() != usr.getId()) || ((user.getUsername() != null) && !user.getUsername().equals(usr.getUsername()))))
         {
             return new ResponseEntity<Object>("You can only change firstName, lastName or password",HttpStatus.BAD_REQUEST);
         }
