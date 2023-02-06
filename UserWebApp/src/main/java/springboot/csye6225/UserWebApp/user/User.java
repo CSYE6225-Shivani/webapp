@@ -2,8 +2,6 @@ package springboot.csye6225.UserWebApp.user;
 
 import javax.persistence.*;
 
-import java.time.ZonedDateTime;
-
 @Entity(name = "userEntity")
 @Table(name = "userTable",
         uniqueConstraints = {
@@ -33,21 +31,22 @@ public class User {
 
     @Column(
             name = "first_name",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String first_name;
 
     @Column(
             name = "last_name",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String last_name;
 
     @Column(
             name = "username",
             nullable = false,
-            columnDefinition = "TEXT",
-            updatable = false
+            columnDefinition = "TEXT"
     )
     private String username;
 
@@ -60,15 +59,13 @@ public class User {
 
     @Column(
             name = "account_created",
-            columnDefinition = "TEXT",
-            updatable = false
+            columnDefinition = "TEXT"
     )
     private String account_created;
 
     @Column(
             name = "account_updated",
-            columnDefinition = "TEXT",
-            updatable = false
+            columnDefinition = "TEXT"
     )
     private String account_updated;
 

@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import springboot.csye6225.UserWebApp.user.User;
-import springboot.csye6225.UserWebApp.user.UserRepository;
 import springboot.csye6225.UserWebApp.user.UserServices;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,25 +37,25 @@ public class ProductServices {
         if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
                 (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
         {
-            return new ResponseEntity<>(req_header.getBody(),req_header.getStatusCode());
+            return new ResponseEntity<Object>(req_header.getBody(),req_header.getStatusCode());
         }
 
         //If any fields are null
         else if(nullCheckResult.getStatusCode() != HttpStatus.OK)
         {
-            return new ResponseEntity<Object>(nullCheckResult.getBody(),nullCheckResult.getStatusCode());
+            return nullCheckResult;
         }
 
         else if(product.getId() != null || product.getOwner_user_id() != null ||
                 product.getDate_added() != null || product.getDate_last_updated() != null)
         {
-            return new ResponseEntity<>("Please do not provide productId, userId, product added date and product updated date",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please do not provide productId, userId, product added date and product updated date",HttpStatus.BAD_REQUEST);
         }
 
         //Product fields validation
         else if(validateProductDetails.getStatusCode() != HttpStatus.OK)
         {
-            return new ResponseEntity<>(validateProductDetails.getBody(),validateProductDetails.getStatusCode());
+            return validateProductDetails;
         }
 
         //Create Product
@@ -77,7 +76,7 @@ public class ProductServices {
             product.setOwner_user_id(current.getId());
             productRepository.save(product);
 
-            return new ResponseEntity<>("Product added successfully!",HttpStatus.CREATED);
+            return new ResponseEntity<Object>("Product added successfully!",HttpStatus.CREATED);
         }
 
     }
@@ -89,13 +88,13 @@ public class ProductServices {
 
     public ResponseEntity<Object> performProductNullCheck(Product product)
     {
-        if(product.getName() == null ||
-                product.getSku() == null ||
-                product.getManufacturer() == null ||
-                product.getDescription() == null ||
-                product.getQuantity() == null)
+        if(product.getName() == null || product.getName().trim().length() == 0 ||
+                product.getSku() == null || product.getSku().trim().length() == 0 ||
+                product.getManufacturer() == null || product.getManufacturer().trim().length() == 0 ||
+                product.getDescription() == null || product.getDescription().trim().length() == 0 ||
+                product.getQuantity() == null || product.getQuantity() < 0)
         {
-            return new ResponseEntity<Object>("Please verify if you have provided product name, desc, sku, manufacturer, quantity without changing field labels",HttpStatus.NO_CONTENT);
+            return new ResponseEntity<Object>("Please verify if you have provided product name, desc, sku, manufacturer, quantity without changing field labels & quantity is not less than 0",HttpStatus.BAD_REQUEST);
         }
         else
             return new ResponseEntity<Object>("All fields are provided",HttpStatus.OK);
@@ -152,7 +151,7 @@ public class ProductServices {
         if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
                 (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
         {
-            return new ResponseEntity<>(req_header.getBody(),req_header.getStatusCode());
+            return new ResponseEntity<Object>(req_header.getBody(),req_header.getStatusCode());
         }
 
         else if(product != null && product.getOwner_user_id() != current.getId())
@@ -163,7 +162,7 @@ public class ProductServices {
             if(product != null)
             {
                 productRepository.deleteById(productId);
-                return new ResponseEntity<>("Product deleted successfully",HttpStatus.OK);
+                return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.OK);
             }
             else {
                 return new ResponseEntity<Object>("Product does not exist",HttpStatus.NOT_FOUND);
@@ -191,13 +190,13 @@ public class ProductServices {
         }
 
         else if(!performProductNullCheck(product).getStatusCode().equals(HttpStatus.OK)) {
-            return new ResponseEntity<Object>("Please check if you have provided all the required details",HttpStatus.NO_CONTENT);
+            return new ResponseEntity<Object>("Please check if you have provided all the required details",HttpStatus.BAD_REQUEST);
         }
 
         else if(product.getId() != null || product.getOwner_user_id() != null ||
         product.getDate_added() != null || product.getDate_last_updated() != null)
         {
-            return new ResponseEntity<>("You cannot make updates to productId, userId, product added date and product updated date, please remove these fields.",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("You cannot make updates to productId, userId, product added date and product updated date, please remove these fields.",HttpStatus.BAD_REQUEST);
         }
 
         else if(product.getName() == null || product.getDescription() == null
@@ -206,7 +205,7 @@ public class ProductServices {
         {
             System.out.println(product.getName()+product.getManufacturer()+product.getDescription()
             +product.getSku()+product.getQuantity());
-            return new ResponseEntity<Object>("Please check if you provided name, desc, manufacturer, sku & quantity details",HttpStatus.NO_CONTENT);
+            return new ResponseEntity<Object>("Please check if you provided name, desc, manufacturer, sku & quantity details",HttpStatus.BAD_REQUEST);
         }
 
         else {

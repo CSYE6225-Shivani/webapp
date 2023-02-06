@@ -1,7 +1,5 @@
 package springboot.csye6225.UserWebApp.product;
 
-import springboot.csye6225.UserWebApp.user.User;
-
 import javax.persistence.*;
 
 @Entity(name = "productEntity")
@@ -30,31 +28,36 @@ public class Product {
 
     @Column(
             name = "name",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String name;
 
     @Column(
             name = "description",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String description;
 
     @Column(
             name = "sku",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String sku;
 
     @Column(
             name = "manufacturer",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String manufacturer;
 
     @Column(
             name = "quantity",
-            columnDefinition = "INTEGER"
+            columnDefinition = "INTEGER",
+            nullable = false
     )
     private Long quantity;
 
