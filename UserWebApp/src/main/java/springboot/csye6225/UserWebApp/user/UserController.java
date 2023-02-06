@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping
 public class UserController {
 
-    private final UserServices userServices;
+    private UserServices userServices;
 
     @Autowired
     public UserController(UserServices userServices) {
@@ -22,39 +22,26 @@ public class UserController {
     @GetMapping(produces = "application/json",path = "/healthz")
     public ResponseEntity<Object> healthy()
     {
-        return new ResponseEntity<Object>("Everything is healthy",HttpStatus.OK);
+        return new ResponseEntity<Object>("Everything is OK",HttpStatus.OK);
     }
 
     @GetMapping(produces = "application/json", path = "v1/user")
     public ResponseEntity<Object> informUser()
     {
-        return new ResponseEntity<Object>("Please enter your username in the path and auth your creds",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<Object>("Please enter userId in the path and auth your creds",HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(produces = "application/json",path ="v1/user/{username}")
+    @GetMapping(produces = "application/json", path = "v1/user/{userId}")
     @Transactional(readOnly = true)
-    public ResponseEntity<Object> getUserDetails(@PathVariable("username") String username, HttpServletRequest httpRequest){
-        ResponseEntity<Object> request_header = userServices.performBasicAuth(httpRequest);
-
-        if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST)
-        {
-            return request_header;
-        }
-        else if(!username.equals(request_header.getBody().toString()))
-        {
-            return new ResponseEntity<>("Login Credentials and path does not match so you are forbidden",HttpStatus.FORBIDDEN);
-        }
-        else
-        {
-            User usr = userServices.fetchUser(request_header.getBody().toString());
-            return new ResponseEntity<Object>(userServices.getJSONBody(usr), HttpStatus.OK);
-        }
+    public ResponseEntity<Object> getUserDetails(@PathVariable("userId") Long id, HttpServletRequest httpRequest){
+        ResponseEntity<Object> result = userServices.getUserDetails(id,httpRequest);
+        return new ResponseEntity<Object>(result.getBody(),result.getStatusCode());
     }
 
-    @PostMapping(produces = "application/json",
-            path = "v1/user")
+    @PostMapping(produces = "application/json", path = "v1/user")
     public ResponseEntity<Object> registerNewUser(@RequestBody User user){
-        return userServices.registerNewUser(user);
+        ResponseEntity<Object> result = userServices.registerNewUser(user);
+        return new ResponseEntity<Object>(result.getBody(),result.getStatusCode());
     }
 
     @PutMapping(produces = "application/json",path = "v1/user")
@@ -63,19 +50,20 @@ public class UserController {
         return new ResponseEntity<Object>("Please enter your username in the path and authorize your creds",HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping(produces = "application/json",path = "v1/user/{username}")
-    public ResponseEntity<Object> updateUserDetails(@PathVariable("username") String username, HttpServletRequest httpRequest, @RequestBody User user)
+    @PutMapping(produces = "application/json",path = "v1/user/{userId}")
+    public ResponseEntity<Object> updateUserDetails(@PathVariable("userId") Long id, HttpServletRequest httpRequest, @RequestBody User user)
     {
-        return userServices.updateUserDetails(httpRequest,user,username);
+        ResponseEntity<Object> result = userServices.updateUser(httpRequest,user,id);
+        return new ResponseEntity<Object>(result.getBody(),result.getStatusCode());
     }
 
-    @DeleteMapping(produces = "application/json",path = "v1/user/{username}")
-    public ResponseEntity<Object> deleteUser(@PathVariable("username") String username){
+    @DeleteMapping(produces = "application/json",path = "v1/user/{userId}")
+    public ResponseEntity<Object> deleteUser(@PathVariable("userId") Long id){
         return new ResponseEntity<Object>("Delete API is not Implemented",HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PatchMapping(produces = "application/json",path = "v1/user/{username}")
-    public ResponseEntity<Object> patchUser(@PathVariable("username") String username){
+    @PatchMapping(produces = "application/json",path = "v1/user/{userId}")
+    public ResponseEntity<Object> patchUser(@PathVariable("userId") Long id){
         return new ResponseEntity<Object>("Patch API is not Implemented",HttpStatus.NOT_IMPLEMENTED);
     }
 

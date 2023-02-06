@@ -34,94 +34,99 @@ public class UserServices {
 
     public ResponseEntity<Object> registerNewUser(User user) {
 
-        if(performNullCheck(user).getStatusCode() == HttpStatus.OK &&
-                emailValidation(user).getStatusCode() == HttpStatus.OK &&
-                emailFormatCheck(user).getStatusCode() == HttpStatus.OK &&
-                emailValidation(user).getStatusCode() == HttpStatus.OK)
+        if(!performNullCheck(user).getStatusCode().equals(HttpStatus.OK))
         {
-            return createUser(user);
+           return new ResponseEntity<Object>(performNullCheck(user).getBody(),performNullCheck(user).getStatusCode());
         }
-        else
+        else if(user.getId() != null ||
+                user.getAccount_created() != null ||
+                user.getAccount_updated() != null)
         {
-            String body;
-            if(performNullCheck(user).getStatusCode() != HttpStatus.OK)
-            {
-                body = performNullCheck(user).getBody().toString();
-            }
-            else if(emailValidation(user).getStatusCode() != HttpStatus.OK)
-            {
-                body = emailValidation(user).getBody().toString();
-            }
-            else if(emailFormatCheck(user).getStatusCode() != HttpStatus.OK)
-            {
-                body = emailFormatCheck(user).getBody().toString();
-            }
-            else {
-                body = emailValidation(user).getBody().toString();
-            }
-            return new ResponseEntity<Object>(
-                    body,
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please do not provide user_id, account_created or account_updated date",HttpStatus.BAD_REQUEST);
+        }
+        else if(validateUserDetails(user).getStatusCode() != HttpStatus.OK)
+        {
+            return new ResponseEntity<Object>(validateUserDetails(user).getBody(),validateUserDetails(user).getStatusCode());
+        }
+        else if(validateUsername(user).getStatusCode() != HttpStatus.OK)
+        {
+            return new ResponseEntity<Object>("Username is taken. Please enter another username",HttpStatus.BAD_REQUEST);
+        }
+        else {
+            createUser(user);
+            return new ResponseEntity<Object>("User created successfully",HttpStatus.CREATED);
         }
     }
 
-    public ResponseEntity<Object> performNullCheck(User user)
-    {
-        String regex = "^[A-Za-z]{5,20}$";
-        Pattern p = Pattern.compile(regex);
+    private ResponseEntity<Object> validateUserDetails(User user) {
 
-        Matcher first_name = p.matcher(user.getFirst_name() == null?"":user.getFirst_name());
-        Matcher last_name = p.matcher(user.getLast_name() == null?"": user.getLast_name());
+        //Name
+        String regexName = "^[A-Za-z]{5,20}$";
+        Pattern pName = Pattern.compile(regexName);
+        Matcher first_name = pName.matcher((user.getFirst_name() == null)?"":user.getFirst_name());
+        Matcher last_name = pName.matcher((user.getLast_name() == null)?"": user.getLast_name());
 
-        if(user.getFirst_name() == null
-                || user.getLast_name() == null
-                || user.getUsername() == null ||
-                user.getPassword() == null)
-        {
-            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.NO_CONTENT);
-        }
-        else if (!first_name.matches()) {
-            return new ResponseEntity<>("First Name cannot have digits or special characters. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
-        }
-        else if (!last_name.matches()) {
-            return new ResponseEntity<>("Last Name cannot have digits or special characters. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
-        }
-        else
-        {
-            return new ResponseEntity<Object>(HttpStatus.OK);
-        }
-    }
-
-    public ResponseEntity<Object> emailFormatCheck(User user)
-    {
-        String regex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)" +
+        //Email
+        String regexEmail = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)" +
                 "*@[^-][A-Za-z0-9-]" +
                 "+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
-        Pattern p = Pattern.compile(regex);
-        Matcher email = p.matcher(user.getUsername() == null?"":user.getUsername());
+        Pattern pEmail = Pattern.compile(regexEmail);
+        Matcher email = pEmail.matcher((user.getUsername() == null)?"":user.getUsername());
 
-        if(!email.matches())
+        if(!first_name.matches())
+        {
+            return new ResponseEntity<Object>("First Name cannot contain digits, special characters or it cannot be blank. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
+        }
+
+        else if (!last_name.matches()) {
+            return new ResponseEntity<Object>("Last Name cannot contain digits, special characters or it cannot be blank. Please re-enter correct name.",HttpStatus.BAD_REQUEST);
+        }
+
+        else if(!email.matches())
         {
             return new ResponseEntity<Object>("Invalid email format.",HttpStatus.BAD_REQUEST);
         }
-        else {
-            return new ResponseEntity<Object>(HttpStatus.OK);
-        }
 
+        else if (user.getPassword().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Password field cannot be empty",HttpStatus.BAD_REQUEST);
+        }
+        else {
+            return new ResponseEntity<Object>("Fields pass validation",HttpStatus.OK);
+        }
     }
 
-    public ResponseEntity<Object> emailValidation(User user)
+    public ResponseEntity<Object> validateUsername(User user)
     {
         if(userRepository.findUserByUsername(user.getUsername()).isPresent())
         {
-            return new ResponseEntity<Object>("Username is taken. Please enter another username",
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Username is taken. Please enter another username",HttpStatus.FORBIDDEN);
+        }
+        else
+        {
+            return new ResponseEntity<Object>("Username is allowed",HttpStatus.OK);
+        }
+    }
+
+
+    public ResponseEntity<Object> performNullCheck(User user)
+    {
+        if(user.getFirst_name() == null || user.getFirst_name().trim().length() == 0
+                || user.getLast_name() == null || user.getLast_name().trim().length() == 0
+                || user.getUsername() == null || user.getUsername().trim().length() == 0 ||
+                user.getPassword() == null || user.getPassword().trim().length() == 0)
+//
+//            if(user.getFirst_name() == null
+//                    || user.getLast_name() == null
+//                    || user.getUsername() == null ||
+//                    user.getPassword() == null || user.getPassword().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.BAD_REQUEST);
         }
         else {
-            return new ResponseEntity<Object>(HttpStatus.OK);
+            return new ResponseEntity<Object>("All fields are provided",HttpStatus.OK);
         }
-
     }
 
     public ResponseEntity<Object> createUser(User user)
@@ -215,7 +220,8 @@ public class UserServices {
     public HashMap<String,Object> getJSONBody(User usr)
     {
         HashMap<String,Object> map = new HashMap<>();
-        map.put("id",usr.getId().toString());
+
+        map.put("id",usr.getId());
         map.put("first_name",usr.getFirst_name());
         map.put("last_name",usr.getLast_name());
         map.put("username",usr.getUsername());
@@ -238,75 +244,80 @@ public class UserServices {
         return authDetails;
     }
 
-    public ResponseEntity<Object> updateUserDetails(HttpServletRequest httpRequest, User user ,String username) {
-        ResponseEntity<Object> req_header = performBasicAuth(httpRequest);
-        User usr = fetchUser(user.getUsername());
+    public ResponseEntity<Object> updateUser(HttpServletRequest httpRequest, User user, Long id)
+    {
+        ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
+        String userDetails = httpRequest.getHeader("Authorization");
+        String[] userCredentials = decodeLogin(userDetails);
+        User current = fetchUser(userCredentials[0]);
 
-        if(req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST))
+        if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
+                request_header.getStatusCode() == HttpStatus.UNAUTHORIZED)
         {
-            return new ResponseEntity<>(req_header,HttpStatus.BAD_REQUEST);
+            return request_header;
         }
 
-        else if(user.getFirst_name() == null
-                || user.getLast_name() == null
-                || user.getUsername() == null ||
-                user.getPassword() == null)
+        else if (current!= null && current.getId() != id)
         {
-            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.NO_CONTENT);
+            return new ResponseEntity<Object>("Login Credentials and path does not match",HttpStatus.FORBIDDEN);
         }
 
-        else if((user.getAccount_created() != null && (user.getAccount_created().toString().length() != usr.getAccount_created().toString().length())) ||
-                (user.getAccount_updated() != null && (user.getAccount_updated().toString().length() != usr.getAccount_updated().toString().length())) ||
-                (user.getId() != null && (user.getId() != usr.getId()) || ((user.getUsername() != null) && !user.getUsername().equals(usr.getUsername()))))
+        else if(performNullCheck(user).getStatusCode() != HttpStatus.OK)
         {
-            return new ResponseEntity<Object>("You can only change firstName, lastName or password",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please verify if you have provided your first_name, last_name, username and password without changing field labels",HttpStatus.BAD_REQUEST);
         }
-
-        else if(req_header.getStatusCode() == HttpStatus.OK && !username.equals(user.getUsername()))
+        else if(user.getId() != null ||
+                user.getAccount_created() != null ||
+                user.getAccount_updated() != null)
         {
-            return new ResponseEntity<Object>("You are forbidden", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Object>("Please do not provide user_id, account_created or account_updated date",HttpStatus.BAD_REQUEST);
         }
-
-        else if(!validateUserExists(user.getUsername()))
+        else if(validateUserDetails(user).getStatusCode() != HttpStatus.OK)
         {
-            return new ResponseEntity<Object>("You cannot update username field!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>(validateUserDetails(user).getBody(),validateUserDetails(user).getStatusCode());
         }
-
-        else if(performNullCheck(user).getStatusCode() == HttpStatus.BAD_REQUEST)
+        else if(current != null && !current.getUsername().equals(user.getUsername()))
         {
-            ResponseEntity<Object> result = performNullCheck(user);
-            return new ResponseEntity<Object>(result,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("You cannot update username",HttpStatus.BAD_REQUEST);
         }
-
         else
         {
-            String usrname = req_header.getBody().toString();
-            if(!user.getUsername().equals(usrname))
-            {
-                return new ResponseEntity<Object>(
-                        "You can only update your credentials.",
-                        HttpStatus.UNAUTHORIZED
-                );
-            }
+            if(current != null) {
+                LocalDateTime localNow = LocalDateTime.now();
+                ZonedDateTime updatedTimeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
 
+                current.setFirst_name(user.getFirst_name());
+                current.setLast_name(user.getLast_name());
+                current.setAccount_updated(updatedTimeInZ.toString());
+                current.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+                userRepository.save(current);
+
+                return new ResponseEntity<Object>(getJSONBody(current), HttpStatus.OK);
+            }
             else {
-                updateUsr(usr,user);
-                return new ResponseEntity<Object>(
-                        getJSONBody(fetchUser(usrname)),
-                        HttpStatus.OK
-                );
+                return new ResponseEntity<Object>("User does not exist",HttpStatus.NOT_FOUND);
             }
         }
     }
 
-    private void updateUsr(User usr, User user) {
-        LocalDateTime localNow = LocalDateTime.now();
-        ZonedDateTime updatedTimeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
-        usr.setFirst_name(user.getFirst_name());
-        usr.setLast_name(user.getLast_name());
-        usr.setAccount_updated(updatedTimeInZ.toString());
-        usr.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+    public ResponseEntity<Object> getUserDetails(Long id, HttpServletRequest httpRequest) {
+        ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
+        String userDetails = httpRequest.getHeader("Authorization");
+        String[] userCredentials = decodeLogin(userDetails);
+        User current = fetchUser(userCredentials[0]);
 
-        userRepository.save(usr);
+        if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
+                request_header.getStatusCode() == HttpStatus.UNAUTHORIZED)
+        {
+            return request_header;
+        }
+        else if (current.getId() != id)
+        {
+            return new ResponseEntity<Object>("Login Credentials and path does not match so you are forbidden",HttpStatus.FORBIDDEN);
+        }
+        else
+        {
+            return new ResponseEntity<Object>(getJSONBody(current), HttpStatus.OK);
+        }
     }
 }
