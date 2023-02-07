@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import springboot.csye6225.UserWebApp.message.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -54,7 +55,7 @@ public class UserServices {
         }
         else {
             createUser(user);
-            return new ResponseEntity<Object>("User created successfully",HttpStatus.CREATED);
+            return new ResponseEntity<Object>(getJSONBody(user),HttpStatus.CREATED);
         }
     }
 
@@ -292,7 +293,7 @@ public class UserServices {
                 current.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
                 userRepository.save(current);
 
-                return new ResponseEntity<Object>(getJSONBody(current), HttpStatus.OK);
+                return new ResponseEntity<Object>("User Updated successfully!", HttpStatus.NO_CONTENT);
             }
             else {
                 return new ResponseEntity<Object>("User does not exist",HttpStatus.NOT_FOUND);
@@ -319,5 +320,13 @@ public class UserServices {
         {
             return new ResponseEntity<Object>(getJSONBody(current), HttpStatus.OK);
         }
+    }
+
+    public HashMap<String,String> getJSONMessageBody(Message message) {
+        HashMap<String,String> map = new HashMap<>();
+
+        map.put("Message:",message.getMessage());
+        map.put("Status Code:",message.getMessageToken());
+        return map;
     }
 }

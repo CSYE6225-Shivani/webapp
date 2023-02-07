@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import springboot.csye6225.UserWebApp.message.Message;
 import springboot.csye6225.UserWebApp.user.User;
 import springboot.csye6225.UserWebApp.user.UserServices;
 
@@ -76,7 +77,7 @@ public class ProductServices {
             product.setOwner_user_id(current.getId());
             productRepository.save(product);
 
-            return new ResponseEntity<Object>("Product added successfully!",HttpStatus.CREATED);
+            return new ResponseEntity<Object>(getJSONBody(product),HttpStatus.CREATED);
         }
 
     }
@@ -162,7 +163,7 @@ public class ProductServices {
             if(product != null)
             {
                 productRepository.deleteById(productId);
-                return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.OK);
+                return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.NO_CONTENT);
             }
             else {
                 return new ResponseEntity<Object>("Product does not exist",HttpStatus.NOT_FOUND);
@@ -222,11 +223,19 @@ public class ProductServices {
                 productinDB.setDate_last_updated(timeInZ.toString());
 
                 productRepository.save(productinDB);
-                return new ResponseEntity<Object>(getJSONBody(productinDB), HttpStatus.OK);
+                return new ResponseEntity<Object>("Product updated successfully", HttpStatus.NO_CONTENT);
             }
             else {
                 return new ResponseEntity<Object>("Product does not exist",HttpStatus.BAD_REQUEST);
             }
         }
+    }
+
+    public HashMap<String,String> getJSONMessageBody(Message message) {
+        HashMap<String,String> map = new HashMap<>();
+
+        map.put("Message:",message.getMessage());
+        map.put("Status Code:",message.getMessageToken());
+        return map;
     }
 }
