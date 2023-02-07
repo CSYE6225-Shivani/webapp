@@ -84,18 +84,31 @@ public class ProductServices {
 
     private ResponseEntity<Object> performValidations(Product product) {
         //to be implemented
-        return new ResponseEntity<Object>("",HttpStatus.OK);
+        if(productRepository.findProductBySku(product.getSku()).isPresent())
+        {
+            return new ResponseEntity<Object>("This sku already exists, please enter a different sku",HttpStatus.BAD_REQUEST);
+        }
+        else if (product.getQuantity() < 0) {
+            return new ResponseEntity<Object>("Quantity cannot be less than 0",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getQuantity() > 100)
+        {
+            return new ResponseEntity<Object>("Quantity cannot be greater than 100",HttpStatus.BAD_REQUEST);
+        }
+        else {
+            return new ResponseEntity<Object>("Product details validated", HttpStatus.OK);
+        }
     }
+
 
     public ResponseEntity<Object> performProductNullCheck(Product product)
     {
         if(product.getName() == null || product.getName().trim().length() == 0 ||
                 product.getSku() == null || product.getSku().trim().length() == 0 ||
                 product.getManufacturer() == null || product.getManufacturer().trim().length() == 0 ||
-                product.getDescription() == null || product.getDescription().trim().length() == 0 ||
-                product.getQuantity() == null || product.getQuantity() < 0)
+                product.getDescription() == null || product.getDescription().trim().length() == 0)
         {
-            return new ResponseEntity<Object>("Please verify if you have provided product name, desc, sku, manufacturer, quantity without changing field labels & quantity is not less than 0",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("Please verify if you have provided product name, desc, sku, manufacturer, quantity without changing field labels",HttpStatus.BAD_REQUEST);
         }
         else
             return new ResponseEntity<Object>("All fields are provided",HttpStatus.OK);
@@ -208,7 +221,9 @@ public class ProductServices {
             +product.getSku()+product.getQuantity());
             return new ResponseEntity<Object>("Please check if you provided name, desc, manufacturer, sku & quantity details",HttpStatus.BAD_REQUEST);
         }
-
+        else if (!performValidations(product).getStatusCode().equals(HttpStatus.OK)) {
+            return new ResponseEntity<Object>(performValidations(product).getBody(),performValidations(product).getStatusCode());
+        }
         else {
             LocalDateTime localNow = LocalDateTime.now();
             ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
