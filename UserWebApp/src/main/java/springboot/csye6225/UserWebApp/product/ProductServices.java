@@ -33,7 +33,6 @@ public class ProductServices {
         ResponseEntity<Object> nullCheckResult = performProductNullCheck(product);
         ResponseEntity<Object> validateProductDetails = performValidations(product);
 
-
         //Authorizing User Credentials
         if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
                 (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
@@ -65,7 +64,7 @@ public class ProductServices {
             ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
             String userDetails = httpRequest.getHeader("Authorization");
             String[] userCredentials = userServices.decodeLogin(userDetails);
-            User current = userServices.fetchUser(userCredentials[0]);
+            User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
 
             product.setName(product.getName());
             product.setDescription(product.getDescription());
@@ -83,15 +82,14 @@ public class ProductServices {
     }
 
     private ResponseEntity<Object> performValidations(Product product) {
-        //to be implemented
-        if(productRepository.findProductBySku(product.getSku()).isPresent())
+        if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent())
         {
             return new ResponseEntity<Object>("This sku already exists, please enter a different sku",HttpStatus.BAD_REQUEST);
         }
-        else if (product.getQuantity() < 0) {
+        else if (product.getQuantity() != null && product.getQuantity() < 0) {
             return new ResponseEntity<Object>("Quantity cannot be less than 0",HttpStatus.BAD_REQUEST);
         }
-        else if(product.getQuantity() > 100)
+        else if(product.getQuantity() != null && product.getQuantity() > 100)
         {
             return new ResponseEntity<Object>("Quantity cannot be greater than 100",HttpStatus.BAD_REQUEST);
         }
@@ -106,7 +104,8 @@ public class ProductServices {
         if(product.getName() == null || product.getName().trim().length() == 0 ||
                 product.getSku() == null || product.getSku().trim().length() == 0 ||
                 product.getManufacturer() == null || product.getManufacturer().trim().length() == 0 ||
-                product.getDescription() == null || product.getDescription().trim().length() == 0)
+                product.getDescription() == null || product.getDescription().trim().length() == 0 ||
+                product.getQuantity() == null || product.getQuantity().toString().trim().length() == 0)
         {
             return new ResponseEntity<Object>("Please verify if you have provided product name, desc, sku, manufacturer, quantity without changing field labels",HttpStatus.BAD_REQUEST);
         }
@@ -114,7 +113,8 @@ public class ProductServices {
             return new ResponseEntity<Object>("All fields are provided",HttpStatus.OK);
     }
 
-    public ResponseEntity<Object> getProductDetails(Long productId) {
+    public ResponseEntity<Object> getProductDetails(Long productId)
+    {
         Product product = fetchProduct(productId);
         if(product != null) {
             return new ResponseEntity<Object>(getJSONBody(product),HttpStatus.OK);
@@ -125,7 +125,8 @@ public class ProductServices {
         }
     }
 
-    private Product fetchProduct(Long productId) {
+    private Product fetchProduct(Long productId)
+    {
         List<Product> productList;
         productList = productRepository.findAll();
         for(Product p: productList)
@@ -158,7 +159,7 @@ public class ProductServices {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
         String[] userCredentials = userServices.decodeLogin(userDetails);
-        User current = userServices.fetchUser(userCredentials[0]);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
         Product product = fetchProduct(productId);
 
         //Authorizing User Credentials
@@ -188,7 +189,7 @@ public class ProductServices {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
         String[] userCredentials = userServices.decodeLogin(userDetails);
-        User current = userServices.fetchUser(userCredentials[0]);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
         Product productinDB = fetchProduct(productId);
 
         //Authorizing User Credentials
@@ -197,7 +198,10 @@ public class ProductServices {
         {
             return new ResponseEntity<>(req_header.getBody(),req_header.getStatusCode());
         }
-
+        else if(productinDB == null)
+        {
+            return new ResponseEntity<Object>("Product does not exist in DB",HttpStatus.NOT_FOUND);
+        }
         else if(productinDB != null && productinDB.getOwner_user_id() != current.getId())
         {
             return new ResponseEntity<Object>("You can only update the product you have created!",HttpStatus.FORBIDDEN);
@@ -216,11 +220,11 @@ public class ProductServices {
         else if(product.getName() == null || product.getDescription() == null
         || product.getQuantity() == null || product.getManufacturer() == null ||
         product.getSku() == null)
+
         {
-            System.out.println(product.getName()+product.getManufacturer()+product.getDescription()
-            +product.getSku()+product.getQuantity());
             return new ResponseEntity<Object>("Please check if you provided name, desc, manufacturer, sku & quantity details",HttpStatus.BAD_REQUEST);
         }
+
         else if (!performValidations(product).getStatusCode().equals(HttpStatus.OK)) {
             return new ResponseEntity<Object>(performValidations(product).getBody(),performValidations(product).getStatusCode());
         }
@@ -241,7 +245,7 @@ public class ProductServices {
                 return new ResponseEntity<Object>("Product updated successfully", HttpStatus.NO_CONTENT);
             }
             else {
-                return new ResponseEntity<Object>("Product does not exist",HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<Object>("Product does not exist",HttpStatus.NOT_FOUND);
             }
         }
     }
@@ -253,4 +257,80 @@ public class ProductServices {
         map.put("Status Code:",message.getMessageToken());
         return map;
     }
+
+    public ResponseEntity<Object> patchProduct(HttpServletRequest httpRequest, Long productId, Product product)
+    {
+        ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
+        String userDetails = httpRequest.getHeader("Authorization");
+        String[] userCredentials = userServices.decodeLogin(userDetails);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
+        Product productinDB = fetchProduct(productId);
+
+        //Authorizing User Credentials
+        if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
+                (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
+        {
+            return new ResponseEntity<>(req_header.getBody(),req_header.getStatusCode());
+        }
+
+        else if(productinDB != null && productinDB.getOwner_user_id() != current.getId())
+        {
+            return new ResponseEntity<Object>("You can only update the product that you have created",HttpStatus.FORBIDDEN);
+        }
+
+        else if((product.getId() != null || product.getDate_last_updated() != null ||
+                product.getOwner_user_id() != null || product.getDate_added() != null))
+        {
+            return new ResponseEntity<Object>("You cannot make updates to productId, userId, product added date and product updated date, please remove these fields.",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getQuantity()!= null && product.getQuantity() < 0)
+        {
+            return new ResponseEntity<>("Quantity cannot be less than 0",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getQuantity() != null && product.getQuantity() > 100)
+        {
+            return new ResponseEntity<Object>("Quantity cannot be more than 100",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent())
+        {
+            return new ResponseEntity<Object>("This sku already exists, please enter a different sku",HttpStatus.BAD_REQUEST);
+        }
+        else {
+            if(productinDB != null)
+            {
+                LocalDateTime localNow = LocalDateTime.now();
+                ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
+
+                if(product.getName() != null)
+                {
+                    productinDB.setName(product.getName());
+                }
+                if(product.getQuantity() != null)
+                {
+                    productinDB.setQuantity(product.getQuantity());
+                }
+                if(product.getSku() != null)
+                {
+                    productinDB.setSku(product.getSku());
+                }
+                if(product.getDescription() != null)
+                {
+                    productinDB.setDescription(product.getDescription());
+                }
+                if(product.getManufacturer() != null)
+                {
+                    productinDB.setDescription(product.getDescription());
+                }
+                productinDB.setDate_last_updated(timeInZ.toString());
+                productRepository.save(productinDB);
+
+                return new ResponseEntity<Object>("Product updated successfully",HttpStatus.NO_CONTENT);
+            }
+            else
+            {
+                return new ResponseEntity<>("Product does not exist in DB",HttpStatus.NOT_FOUND);
+            }
+        }
+    }
+
 }

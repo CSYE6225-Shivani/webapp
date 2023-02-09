@@ -31,16 +31,23 @@ public class ProductController {
 
     @PostMapping(produces = "application/json",path = "v1/product")
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, @RequestBody Product product){
-        ResponseEntity<Object> result = productServices.createProduct(httpRequest, product);
-        if(!result.getStatusCode().equals(HttpStatus.CREATED))
+        if(product != null)
         {
-            message.setMessage(result.getBody().toString());
-            message.setMessageToken(result.getStatusCode().toString());
-            return new ResponseEntity(productServices.getJSONMessageBody(message),result.getStatusCode());
+            ResponseEntity<Object> result = productServices.createProduct(httpRequest, product);
+            if(!result.getStatusCode().equals(HttpStatus.CREATED))
+            {
+                message.setMessage(result.getBody().toString());
+                message.setMessageToken(result.getStatusCode().toString());
+                return new ResponseEntity(productServices.getJSONMessageBody(message),result.getStatusCode());
+            }
+            else {
+                return new ResponseEntity(result.getBody(),result.getStatusCode());
+            }
         }
         else {
-            return new ResponseEntity(result.getBody(),result.getStatusCode());
+            return new ResponseEntity<>("Please enter a valid request body with product name, quantity, description, sku & manufacturer",HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @GetMapping(produces = "application/json",path = "v1/product/{productId}")
@@ -78,30 +85,43 @@ public class ProductController {
     @PutMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> updateProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
-        ResponseEntity<Object> result = productServices.updateProduct(httpRequest,productId,product);
-        if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
+        if(product != null)
         {
-            message.setMessage(result.getBody().toString());
-            message.setMessageToken(result.getStatusCode().toString());
-            return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+            ResponseEntity<Object> result = productServices.updateProduct(httpRequest,productId,product);
+            if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
+            {
+                message.setMessage(result.getBody().toString());
+                message.setMessageToken(result.getStatusCode().toString());
+                return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+            }
+            else {
+                return new ResponseEntity<>("Product Updated successfully",result.getStatusCode());
+            }
         }
-        else {
-            return new ResponseEntity<>("Product Updated successfully",result.getStatusCode());
+        else
+        {
+            return new ResponseEntity<Object>("Please enter a valid request body with product name, quantity, description, sku & manufacturer",HttpStatus.BAD_REQUEST);
         }
     }
 
     @PatchMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> patchProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
-        ResponseEntity<Object> result = productServices.updateProduct(httpRequest,productId,product);
-        if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
+        if(product != null)
         {
-            message.setMessage(result.getBody().toString());
-            message.setMessageToken(result.getStatusCode().toString());
-            return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+            ResponseEntity<Object> result = productServices.patchProduct(httpRequest,productId,product);
+            if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
+            {
+                message.setMessage(result.getBody().toString());
+                message.setMessageToken(result.getStatusCode().toString());
+                return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+            }
+            else {
+                return new ResponseEntity<>("Product updated successfully",result.getStatusCode());
+            }
         }
         else {
-            return new ResponseEntity<>("Product updated successfully",result.getStatusCode());
+            return new ResponseEntity<Object>("Please enter a valid request body with either product name, description, sku, manufacturer or quantity",HttpStatus.BAD_REQUEST);
         }
     }
 }
