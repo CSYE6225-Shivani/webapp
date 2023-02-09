@@ -250,7 +250,7 @@ public class UserServices {
         ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
         String[] userCredentials = decodeLogin(userDetails);
-        User current = fetchUser(userCredentials[0]);
+        User current = userCredentials.length == 0?null:fetchUser(userCredentials[0]);
 
         if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
                 request_header.getStatusCode() == HttpStatus.UNAUTHORIZED)
@@ -305,7 +305,7 @@ public class UserServices {
         ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
         String[] userCredentials = decodeLogin(userDetails);
-        User current = fetchUser(userCredentials[0]);
+        User current =  userCredentials.length == 0?null:fetchUser(userCredentials[0]);
 
         if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
                 request_header.getStatusCode() == HttpStatus.UNAUTHORIZED)

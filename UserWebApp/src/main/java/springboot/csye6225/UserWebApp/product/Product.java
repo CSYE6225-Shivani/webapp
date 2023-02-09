@@ -59,7 +59,7 @@ public class Product {
             columnDefinition = "INTEGER",
             nullable = false
     )
-    private Long quantity;
+    private Integer quantity;
 
     @Column(
             name = "date_added",
@@ -82,7 +82,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String description, String sku, String manufacturer, Long quantity) {
+    public Product(String name, String description, String sku, String manufacturer, Integer quantity) {
         this.name = name;
         this.description = description;
         this.sku = sku;
@@ -130,11 +130,11 @@ public class Product {
         this.manufacturer = manufacturer;
     }
 
-    public Long getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
