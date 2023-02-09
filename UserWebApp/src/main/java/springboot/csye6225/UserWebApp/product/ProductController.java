@@ -31,8 +31,6 @@ public class ProductController {
 
     @PostMapping(produces = "application/json",path = "v1/product")
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, @RequestBody Product product){
-        if(product != null)
-        {
             ResponseEntity<Object> result = productServices.createProduct(httpRequest, product);
             if(!result.getStatusCode().equals(HttpStatus.CREATED))
             {
@@ -43,10 +41,6 @@ public class ProductController {
             else {
                 return new ResponseEntity(result.getBody(),result.getStatusCode());
             }
-        }
-        else {
-            return new ResponseEntity<>("Please enter a valid request body with product name, quantity, description, sku & manufacturer",HttpStatus.BAD_REQUEST);
-        }
 
     }
 
@@ -85,8 +79,6 @@ public class ProductController {
     @PutMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> updateProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
-        if(product != null)
-        {
             ResponseEntity<Object> result = productServices.updateProduct(httpRequest,productId,product);
             if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
             {
@@ -95,20 +87,13 @@ public class ProductController {
                 return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
             }
             else {
-                return new ResponseEntity<>("Product Updated successfully",result.getStatusCode());
+                return new ResponseEntity<>("Product Updated successfully", result.getStatusCode());
             }
-        }
-        else
-        {
-            return new ResponseEntity<Object>("Please enter a valid request body with product name, quantity, description, sku & manufacturer",HttpStatus.BAD_REQUEST);
-        }
     }
 
     @PatchMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> patchProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
-        if(product != null)
-        {
             ResponseEntity<Object> result = productServices.patchProduct(httpRequest,productId,product);
             if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
             {
@@ -119,9 +104,5 @@ public class ProductController {
             else {
                 return new ResponseEntity<>("Product updated successfully",result.getStatusCode());
             }
-        }
-        else {
-            return new ResponseEntity<Object>("Please enter a valid request body with either product name, description, sku, manufacturer or quantity",HttpStatus.BAD_REQUEST);
-        }
     }
 }

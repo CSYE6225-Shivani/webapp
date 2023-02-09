@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import springboot.csye6225.UserWebApp.message.Message;
 import springboot.csye6225.UserWebApp.user.User;
+import springboot.csye6225.UserWebApp.user.UserRepository;
 import springboot.csye6225.UserWebApp.user.UserServices;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServices {
@@ -22,10 +24,13 @@ public class ProductServices {
     UserServices userServices;
 
     ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ProductServices(ProductRepository productRepository) {
+    public ProductServices(ProductRepository productRepository,
+                           UserRepository userRepository) {
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, Product product) {
@@ -97,7 +102,6 @@ public class ProductServices {
             return new ResponseEntity<Object>("Product details validated", HttpStatus.OK);
         }
     }
-
 
     public ResponseEntity<Object> performProductNullCheck(Product product)
     {
@@ -204,7 +208,7 @@ public class ProductServices {
         }
         else if(productinDB != null && productinDB.getOwner_user_id() != current.getId())
         {
-            return new ResponseEntity<Object>("You can only update the product you have created!",HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Object>("You can only update the product you have created",HttpStatus.FORBIDDEN);
         }
 
         else if(!performProductNullCheck(product).getStatusCode().equals(HttpStatus.OK)) {
@@ -224,9 +228,18 @@ public class ProductServices {
         {
             return new ResponseEntity<Object>("Please check if you provided name, desc, manufacturer, sku & quantity details",HttpStatus.BAD_REQUEST);
         }
-
-        else if (!performValidations(product).getStatusCode().equals(HttpStatus.OK)) {
-            return new ResponseEntity<Object>(performValidations(product).getBody(),performValidations(product).getStatusCode());
+        else if(product.getQuantity() != null && product.getQuantity() < 0)
+        {
+            return new ResponseEntity<Object>("Quantity cannot be less than 0",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getQuantity() != null && product.getQuantity() > 100)
+        {
+            return new ResponseEntity<Object>("Quantity cannot be greater than 100",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent() &&
+                productRepository.findProductBySku(product.getSku()).get().getId() != productinDB.getId())
+        {
+            return new ResponseEntity<Object>("This sku already exists, please enter a different sku",HttpStatus.BAD_REQUEST);
         }
         else {
             LocalDateTime localNow = LocalDateTime.now();
@@ -283,6 +296,11 @@ public class ProductServices {
         {
             return new ResponseEntity<Object>("You cannot make updates to productId, userId, product added date and product updated date, please remove these fields.",HttpStatus.BAD_REQUEST);
         }
+        else if(product.getName() == null && product.getSku() == null && product.getQuantity() == null
+        && product.getDescription() == null && product.getManufacturer() == null)
+        {
+            return new ResponseEntity<Object>("Please submit at least one field",HttpStatus.BAD_REQUEST);
+        }
         else if(product.getQuantity()!= null && product.getQuantity() < 0)
         {
             return new ResponseEntity<>("Quantity cannot be less than 0",HttpStatus.BAD_REQUEST);
@@ -291,7 +309,8 @@ public class ProductServices {
         {
             return new ResponseEntity<Object>("Quantity cannot be more than 100",HttpStatus.BAD_REQUEST);
         }
-        else if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent())
+        else if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent() &&
+                productRepository.findProductBySku(product.getSku()).get().getId() != productinDB.getId())
         {
             return new ResponseEntity<Object>("This sku already exists, please enter a different sku",HttpStatus.BAD_REQUEST);
         }
