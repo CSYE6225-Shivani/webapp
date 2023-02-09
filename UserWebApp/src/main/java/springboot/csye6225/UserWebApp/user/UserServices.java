@@ -185,7 +185,7 @@ public class UserServices {
         if(loginDetails.length > 1) {
             //checking if the email is present in the DB
             if (!validateUserExists(loginDetails[0])) {
-                return new ResponseEntity<Object>("Please check login credentials", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<Object>("Please check login credentials", HttpStatus.UNAUTHORIZED);
             }
 
             //finding the user in the DB
