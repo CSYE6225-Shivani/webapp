@@ -162,7 +162,11 @@ public class ProductServices {
     public ResponseEntity<Object> deleteProduct(HttpServletRequest httpRequest, Long productId) {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
-        String[] userCredentials = userServices.decodeLogin(userDetails);
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+        String[] userCredentials = userDetails == null?null:userServices.decodeLogin(userDetails);
         User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
         Product product = fetchProduct(productId);
 
@@ -192,7 +196,13 @@ public class ProductServices {
     public ResponseEntity<Object> updateProduct(HttpServletRequest httpRequest, Long productId, Product product) {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
-        String[] userCredentials = userServices.decodeLogin(userDetails);
+
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+
+        String[] userCredentials = userDetails == null? null: userServices.decodeLogin(userDetails);
         User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
         Product productinDB = fetchProduct(productId);
 
@@ -275,7 +285,11 @@ public class ProductServices {
     {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
-        String[] userCredentials = userServices.decodeLogin(userDetails);
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+        String[] userCredentials = userDetails == null? null: userServices.decodeLogin(userDetails);
         User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
         Product productinDB = fetchProduct(productId);
 
@@ -319,7 +333,6 @@ public class ProductServices {
             {
                 LocalDateTime localNow = LocalDateTime.now();
                 ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
-
                 if(product.getName() != null)
                 {
                     productinDB.setName(product.getName());

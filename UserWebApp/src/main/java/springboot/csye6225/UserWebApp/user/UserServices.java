@@ -69,8 +69,7 @@ public class UserServices {
 
         //Email
         String regexEmail = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)" +
-                "*@[^-][A-Za-z0-9-]" +
-                "+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+                "*@[^-][A-Za-z0-9-]" + "+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
         Pattern pEmail = Pattern.compile(regexEmail);
         Matcher email = pEmail.matcher((user.getUsername() == null)?"":user.getUsername());
@@ -249,7 +248,11 @@ public class UserServices {
     {
         ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
-        String[] userCredentials = decodeLogin(userDetails);
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+        String[] userCredentials = userDetails == null? null: decodeLogin(userDetails);
         User current = userCredentials.length == 0?null:fetchUser(userCredentials[0]);
 
         if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
@@ -304,7 +307,11 @@ public class UserServices {
     public ResponseEntity<Object> getUserDetails(Long id, HttpServletRequest httpRequest) {
         ResponseEntity<Object> request_header = performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
-        String[] userCredentials = decodeLogin(userDetails);
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+        String[] userCredentials = userDetails == null? null: decodeLogin(userDetails);
         User current =  userCredentials.length == 0?null:fetchUser(userCredentials[0]);
 
         if(request_header.getStatusCode() == HttpStatus.BAD_REQUEST ||
