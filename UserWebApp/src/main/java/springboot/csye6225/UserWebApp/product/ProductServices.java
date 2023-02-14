@@ -323,6 +323,22 @@ public class ProductServices {
         {
             return new ResponseEntity<Object>("Quantity cannot be more than 100",HttpStatus.BAD_REQUEST);
         }
+        else if(product.getName() != null && product.getName().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Please provide a valid name",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getDescription() != null && product.getDescription().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Please provide a valid description",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getManufacturer() != null && product.getManufacturer().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Please provide a valid manufacturer",HttpStatus.BAD_REQUEST);
+        }
+        else if(product.getSku() != null && product.getSku().trim().length() == 0)
+        {
+            return new ResponseEntity<Object>("Please provide a valid sku",HttpStatus.BAD_REQUEST);
+        }
         else if(product.getSku() != null && productRepository.findProductBySku(product.getSku()).isPresent() &&
                 productRepository.findProductBySku(product.getSku()).get().getId() != productinDB.getId())
         {
