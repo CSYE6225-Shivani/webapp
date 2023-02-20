@@ -64,11 +64,11 @@ jobs:
           find . -name "pom.xml"
           cd /home/runner/work/webapp/webapp/UserWebApp/
           ls -ltrh
-          mvn -v
           mvn test 
 
       - name: Create jar file                                     ##Running the jar file
         run: |
+          cd /home/runner/work/webapp/webapp/UserWebApp/
           mvn clean install
           echo "Print working directory"
           find . -name "*SNAPSHOT*"
