@@ -39,7 +39,7 @@ variable "aws_region" {
 variable "source_ami" {
   type        = string
   description = "Source AMI ID"
-  default     = "ami-0dfcb1ef8550277af"
+  default     = "ami-0dfcb1ef8550277af" ##Linux 2 AMI
 }
 
 variable "ssh_username" {
@@ -109,22 +109,11 @@ source "amazon-ebs" "my-ami" {
 }
 
 build {
-  name = "Building custom AMI"
+  name    = "Building custom AMI"
   sources = ["source.amazon-ebs.my-ami"]
-  #  provisioner "file" {
-  #    source      = ""
-  #    destination = "/home"
-  #  }
-  #
-  #  provisioner "file" {
-  #    source      = ""
-  #    destination = "/home"
-  #  }
 
   provisioner "shell" {
-    inline = [
-      "touch shivani.txt"
-    ]
+    script = "config.sh"
   }
 
   post-processor "manifest" {
