@@ -1,8 +1,8 @@
 name: Pull Request to Upstream main
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches: [ Assignment4 ]
 
   workflow_dispatch:
 
@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2                       ##Checking out the code to local
 
-      - name: Upgrade Env
-        run: |
+      - name: Upgrade Env                               ##Updating the packages if any updates are required
+        run: |  
           sudo apt-get update
           sudo apt-get -qy upgrade
 
-      - name: Install Java 11
+      - name: Install Java 11                           ##Installing Java
         run: |
           sudo apt-get install -y openjdk-11-jdk
           java -version
@@ -28,7 +28,7 @@ jobs:
           echo $JAVA_HOME
           echo $PATH
 
-      - name: Install Maven
+      - name: Install Maven                              ##Installing Maven
         run: |
           sudo apt install maven -y
           mvn -version
@@ -58,7 +58,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -qy upgrade
 
-      - name: Run Test
+      - name: Run Test                                            ##Running the test cases
         run: |
           pwd
           find . -name "pom.xml"
@@ -66,6 +66,12 @@ jobs:
           ls -ltrh
           mvn -v
           mvn test 
+
+      - name: Create jar file                                     ##Running the jar file
+        run: |
+          mvn clean install
+          echo "Print working directory"
+          find . -name "*SNAPSHOT*"
 
       - name: Confirm Project run
         run: echo "End"
