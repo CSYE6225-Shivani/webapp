@@ -79,7 +79,7 @@ jobs:
           command: validate
           arguments: -syntax-only
           target: aws-linux2.pkr.hcl
-          working_directory: ami
+          working_directory: packer
         env:
           PACKER_LOG: 1
 
