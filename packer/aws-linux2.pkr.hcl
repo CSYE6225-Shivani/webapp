@@ -107,17 +107,18 @@ build {
   name    = "Building custom AMI"
   sources = ["source.amazon-ebs.my-ami"]
 
-  provisioner "shell" {
-    script = "config.sh"
+  provisioner "file" {
+    source      = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
+    destination = "/home/ec2-user/"
   }
 
   provisioner "file" {
-    source      = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
-    destination = "~/"
+    source = "./userWebApp.service"
+    destination = "/tmp/userWebApp.service"
   }
 
   provisioner "shell" {
-    script = "appStart.sh"
+    script = "config.sh"
   }
 
   post-processor "manifest" {
