@@ -4,6 +4,13 @@ on:
   push:
     branches: [ Assignment4 ]
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION}}
+  AWS_DEFAULT_OUTPUT: json
+  AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
+
   workflow_dispatch:
 
 jobs:
@@ -105,7 +112,6 @@ jobs:
             arguments: "-color=false -on-error=abort"
             target: aws-linux2.pkr.hcl
             working_directory: packer
-
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
