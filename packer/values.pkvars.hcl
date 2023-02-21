@@ -1,8 +1,4 @@
-aws_access_key_id = "AKIA35FCJK2X5NOBGVZH"
-
-aws_secret_access_key = "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"
-
-aws_profile = "dev"
+aws_profile = "818531620527"
 
 ami_name = "Custom_AMI"
 

@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     amazon = {
-      version = ">= 0.0.2"
+      version = ">= 1.1.1,< 2.0"
       source  = "github.com/hashicorp/amazon"
     }
   }
@@ -11,17 +11,17 @@ packer {
 #-----------------------------------------------------------
 variable "aws_access_key_id" {
   type    = string
-  default = "AKIA35FCJK2X5NOBGVZH"
+  default = env("AWS_ACCESS_KEY_ID")
 }
 
 variable "aws_secret_access_key" {
   type    = string
-  default = "ImzrUZHjm1L2iDfREgRgEVTkICZglDSZy9zcCu7y"
+  default = env("AWS_SECRET_ACCESS_KEY")
 }
 
 variable "aws_profile" {
   type    = string
-  default = "dev"
+  default = env("AWS_PROFILE")
 }
 
 variable "ami_name" {
@@ -114,6 +114,11 @@ build {
 
   provisioner "shell" {
     script = "config.sh"
+  }
+
+  provisioner "file" {
+    source = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
+    destination = "~"
   }
 
   post-processor "manifest" {
