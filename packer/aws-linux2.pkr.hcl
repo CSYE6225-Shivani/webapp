@@ -66,7 +66,7 @@ variable "instance_type" {
 }
 
 variable "ami_user" {
-  type = list(string)
+  type    = list(string)
   default = [""]
 }
 
@@ -113,7 +113,7 @@ build {
   }
 
   provisioner "file" {
-    source = "./userWebApp.service"
+    source      = "./userWebApp.service"
     destination = "/tmp/userWebApp.service"
   }
 
