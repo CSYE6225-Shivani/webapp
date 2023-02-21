@@ -91,6 +91,10 @@ jobs:
           working_directory: packer
         env:
           PACKER_LOG: 1
+        run: |
+          echo "Print location of jar file"
+          pwd
+          find . -name "*SNAPSHOT*"
 
       - name: Packer Build
         uses: hashicorp/packer-github-actions@master
