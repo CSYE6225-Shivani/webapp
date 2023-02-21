@@ -72,8 +72,17 @@ jobs:
           mvn clean install
           echo "Print working directory"
           find . -name "*SNAPSHOT*"
+
+      - name: Packer Init
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: init
+          target: aws-linux2.pkr.hcl
+          working_directory: packer
+        env:
+          PACKER_LOG: 1
           
-      - name: Validate Packer
+      - name: Packer Validate
         uses: hashicorp/packer-github-actions@master
         with:
           command: validate
@@ -82,6 +91,19 @@ jobs:
           working_directory: packer
         env:
           PACKER_LOG: 1
+
+      - name: Packer Build
+        uses: hashicorp/packer-github-actions@master
+        with:
+            command: build
+            arguments: "-color=false -on-error=abort"
+            target: aws-linux2.pkr.hcl
+            working_directory: packer
+
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
 
       - name: Confirm Project run
         run: echo "End"

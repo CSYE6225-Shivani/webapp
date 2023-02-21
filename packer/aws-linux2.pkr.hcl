@@ -72,6 +72,13 @@ variable "vpc_id" {
   default     = "vpc-0182444f5986c7503"
 }
 
+variable "ami_user" {
+  type = list(string)
+  default = [
+    "710170838380",
+  ]
+}
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
@@ -85,6 +92,7 @@ source "amazon-ebs" "my-ami" {
   profile                 = "${var.aws_profile}"
   access_key              = "${var.aws_access_key_id}"
   secret_key              = "${var.aws_secret_access_key}"
+  ami_users               = "${var.ami_user}"
   ssh_agent_auth          = false
   temporary_key_pair_type = "rsa"
   ami_regions = [
@@ -117,7 +125,7 @@ build {
   }
 
   provisioner "file" {
-    source = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
+    source      = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
     destination = "~"
   }
 
