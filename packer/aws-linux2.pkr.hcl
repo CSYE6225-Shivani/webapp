@@ -48,12 +48,6 @@ variable "ssh_username" {
   default     = "ec2-user"
 }
 
-variable "subnet_id" {
-  type        = string
-  description = "Subnet ID"
-  default     = "subnet-0c6995c9f56334d32"
-}
-
 variable "ami_description" {
   type        = string
   description = "AMI description"
@@ -100,7 +94,6 @@ source "amazon-ebs" "my-ami" {
   instance_type = "${var.instance_type}"
   source_ami    = "${var.source_ami}"
   ssh_username  = "${var.ssh_username}"
-  subnet_id     = "${var.subnet_id}"
 
   launch_block_device_mappings {
     delete_on_termination = "${var.delete_on_termination}"
