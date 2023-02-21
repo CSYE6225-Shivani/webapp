@@ -1,8 +1,8 @@
 name: Pull Request to Upstream main
 
 on:
-  push:
-    branches: [ Assignment4 ]
+  pull_request:
+    branches: [ main ]
 
   workflow_dispatch:
 
@@ -95,9 +95,8 @@ jobs:
       - name: Packer Build
         uses: hashicorp/packer-github-actions@master
         with:
-          secrets: inherit
           command: build
-          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
+          arguments: -var 'aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}}' -var 'aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}}' -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
           target: aws-linux2.pkr.hcl
           working_directory: packer
         env:
