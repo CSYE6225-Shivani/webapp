@@ -66,12 +66,6 @@ variable "delete_on_termination" {
   default     = true
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "Default VPC ID"
-  default     = "vpc-0182444f5986c7503"
-}
-
 variable "instance_type" {
   type    = string
   default = "t2.micro"
@@ -79,7 +73,7 @@ variable "instance_type" {
 
 variable "ami_user" {
   type = list(string)
-  default = ["818531620527", "710170838380",]
+  default = ["710170838380",]
 }
 
 locals {
