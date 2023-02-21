@@ -85,6 +85,7 @@ jobs:
       - name: Packer Validate
         uses: hashicorp/packer-github-actions@master
         with:
+          secrets: inherit
           command: validate
           arguments: -var-file=values.auto.pkvars.hcl
           target: aws-linux2.pkr.hcl
@@ -94,7 +95,6 @@ jobs:
 
       - name: Packer Build
         uses: hashicorp/packer-github-actions@master
-        secrets: inherit
         with:
             command: build
             arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
