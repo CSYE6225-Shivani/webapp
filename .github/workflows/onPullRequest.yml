@@ -72,6 +72,16 @@ jobs:
           mvn clean install
           echo "Print working directory"
           find . -name "*SNAPSHOT*"
+          
+      - name: Validate Packer
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: aws-linux2.pkr.hcl
+          working_directory: ami
+        env:
+          PACKER_LOG: 1
 
       - name: Confirm Project run
         run: echo "End"
