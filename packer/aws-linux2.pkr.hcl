@@ -11,35 +11,35 @@ packer {
 #-----------------------------------------------------------
 variable "aws_access_key_id" {
   type    = string
-  default = env("AWS_ACCESS_KEY_ID")
+  default = ""
 }
 
 variable "aws_secret_access_key" {
   type    = string
-  default = env("AWS_SECRET_ACCESS_KEY")
+  default = ""
 }
 
 variable "aws_profile" {
   type    = string
-  default = env("AWS_PROFILE")
+  default = ""
 }
 
 variable "ami_name" {
   type        = string
   description = "Name of the AMI"
-  default     = "custom_AMI"
+  default     = ""
 }
 
 variable "aws_region" {
   type        = string
   description = "AWS_region"
-  default     = "us-east-1"
+  default     = ""
 }
 
 variable "source_ami" {
   type        = string
   description = "Source AMI ID"
-  default     = "ami-0dfcb1ef8550277af" ##Linux 2 AMI
+  default     = "ami-0dfcb1ef8550277af"
 }
 
 variable "ssh_username" {
@@ -72,11 +72,14 @@ variable "vpc_id" {
   default     = "vpc-0182444f5986c7503"
 }
 
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
 variable "ami_user" {
   type = list(string)
-  default = [
-    "710170838380",
-  ]
+  default = ["818531620527", "710170838380",]
 }
 
 locals {
@@ -89,21 +92,18 @@ source "amazon-ebs" "my-ami" {
   region                  = "${var.aws_region}"
   ami_name                = "${var.ami_name}-${local.timestamp}"
   ami_description         = "${var.ami_description}"
-  profile                 = "${var.aws_profile}"
   access_key              = "${var.aws_access_key_id}"
   secret_key              = "${var.aws_secret_access_key}"
   ami_users               = "${var.ami_user}"
   ssh_agent_auth          = false
   temporary_key_pair_type = "rsa"
-  ami_regions = [
-    "${var.aws_region}",
-  ]
 
   aws_polling {
     delay_seconds = 120
     max_attempts  = 50
   }
-  instance_type = "t2.micro"
+
+  instance_type = "${var.instance_type}"
   source_ami    = "${var.source_ami}"
   ssh_username  = "${var.ssh_username}"
   subnet_id     = "${var.subnet_id}"

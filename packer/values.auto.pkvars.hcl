@@ -1,6 +1,4 @@
-aws_profile = "818531620527"
-
-ami_name = "Custom_AMI"
+ami_name = "CSYE6225_Custom_AMI"
 
 aws_region = "us-east-1"
 
