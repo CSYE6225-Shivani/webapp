@@ -2,10 +2,6 @@ ami_name = "CSYE6225_Custom_AMI"
 
 aws_region = "us-east-1"
 
-source_ami = "ami-0dfcb1ef8550277af"
-
-ssh_username = "ec2-user"
-
 vpc_id = "vpc-0182444f5986c7503"
 
 subnet_id = "subnet-0c6995c9f56334d32"
