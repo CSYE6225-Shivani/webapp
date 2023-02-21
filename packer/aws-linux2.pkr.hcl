@@ -116,6 +116,10 @@ build {
     destination = "~/"
   }
 
+  provisioner "shell" {
+    script = "appStart.sh"
+  }
+
   post-processor "manifest" {
     output     = "manifest.json"
     strip_path = true

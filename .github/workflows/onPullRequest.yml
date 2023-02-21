@@ -102,11 +102,5 @@ jobs:
         env:
           PACKER_LOG: 1
 
-      - name: Checking current location
-        run: |
-          echo "checking current location"
-          pwd
-          find . -name "*SNAPSHOT*"
-
       - name: Confirm Project run
         run: echo "End"

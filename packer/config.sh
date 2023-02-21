@@ -29,6 +29,7 @@ sudo sed -i 87s/ident/md5/g /var/lib/pgsql/data/pg_hba.conf
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
 
+### CREATING DATABASE & USER ############################
 #sudo -u postgres psql -c 'CREATE DATABASE userdatabase;'
 #sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'chavan';"
 echo "Creating DATABASE"
@@ -36,4 +37,5 @@ sudo -u postgres psql -c 'CREATE DATABASE userdatabase;'
 sudo -u postgres psql -c "CREATE USER shivanichavan WITH PASSWORD 'Chavan123';"
 sudo -u postgres psql -c 'GRANT ALL PRIVILEGES ON DATABASE userdatabase TO shivanichavan;'
 
+################# END OF SCRIPT ##############################
 #############################################
