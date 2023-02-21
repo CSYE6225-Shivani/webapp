@@ -4,13 +4,6 @@ on:
   push:
     branches: [ Assignment4 ]
 
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: us-east-1
-  AWS_DEFAULT_OUTPUT: json
-  AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
-
   workflow_dispatch:
 
 jobs:
@@ -18,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2                       ##Checking out the code to local
+      - uses: actions/checkout@v2
 
-      - name: Upgrade Env                               ##Updating the packages if any updates are required
+      - name: Upgrade Env
         run: |  
           sudo apt-get update
           sudo apt-get -qy upgrade
 
-      - name: Install Java 11                           ##Installing Java
+      - name: Install Java 11
         run: |
           sudo apt-get install -y openjdk-11-jdk
           java -version
@@ -35,7 +28,7 @@ jobs:
           echo $JAVA_HOME
           echo $PATH
 
-      - name: Install Maven                              ##Installing Maven
+      - name: Install Maven
         run: |
           sudo apt install maven -y
           mvn -version
@@ -65,26 +58,20 @@ jobs:
           sudo apt-get update
           sudo apt-get -qy upgrade
 
-      - name: Run Test                                            ##Running the test cases
+      - name: Run Test
         run: |
           pwd
           find . -name "pom.xml"
           cd /home/runner/work/webapp/webapp/UserWebApp/
           ls -ltrh
-          mvn test 
+          mvn test
 
-      - name: Create jar file                                     ##Running the jar file
+      - name: Create jar file
         run: |
           cd /home/runner/work/webapp/webapp/UserWebApp/
           mvn clean install
           echo "Print working directory"
           find . -name "*SNAPSHOT*"
-
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: us-east-1
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
       - name: Packer Init
         uses: hashicorp/packer-github-actions@master
@@ -99,7 +86,7 @@ jobs:
         uses: hashicorp/packer-github-actions@master
         with:
           command: validate
-          arguments: -syntax-only
+          arguments: -var-file=values.auto.pkvars.hcl
           target: aws-linux2.pkr.hcl
           working_directory: packer
         env:
@@ -109,13 +96,11 @@ jobs:
         uses: hashicorp/packer-github-actions@master
         with:
             command: build
-            arguments: "-color=false -on-error=abort"
+            arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
             target: aws-linux2.pkr.hcl
             working_directory: packer
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
+          PACKER_LOG: 1
 
       - name: Confirm Project run
         run: echo "End"
