@@ -67,7 +67,7 @@ variable "instance_type" {
 
 variable "ami_user" {
   type = list(string)
-  default = ["710170838380",]
+  default = []
 }
 
 locals {
@@ -113,7 +113,7 @@ build {
 
   provisioner "file" {
     source      = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
-    destination = "~"
+    destination = "/home/"
   }
 
   post-processor "manifest" {
