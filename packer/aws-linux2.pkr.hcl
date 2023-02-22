@@ -80,7 +80,7 @@ source "amazon-ebs" "my-ami" {
   ami_users               = "${var.ami_user}"
   ssh_agent_auth          = false
   temporary_key_pair_type = "rsa"
-  tag                     = {
+  tags                     = {
     Name = "AMI-${var.ami_name}"
   }
 
