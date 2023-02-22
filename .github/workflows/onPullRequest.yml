@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Run unit test & Packer Validate:
+  UnitTest_&_PackerValidate:
     runs-on: ubuntu-latest
 
     steps:
