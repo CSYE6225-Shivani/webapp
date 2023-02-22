@@ -51,8 +51,14 @@ variable "ami_description" {
 
 variable "delete_on_termination" {
   type        = bool
-  description = "Delete on Termination(True for yes)"
+  description = "Delete on Termination"
   default     = true
+}
+
+variable "ssh_agent_auth" {
+  type        = bool
+  description = "ssh_agent_auth"
+  default     = false
 }
 
 variable "instance_type" {
@@ -78,7 +84,7 @@ source "amazon-ebs" "my-ami" {
   access_key              = "${var.aws_access_key_id}"
   secret_key              = "${var.aws_secret_access_key}"
   ami_users               = "${var.ami_user}"
-  ssh_agent_auth          = false
+  ssh_agent_auth          = "${var.ssh_agent_auth}"
   temporary_key_pair_type = "rsa"
   tags                     = {
     Name = "AMI-${var.ami_name}"
@@ -123,4 +129,4 @@ build {
     output     = "manifest.json"
     strip_path = true
   }
-}
+
