@@ -1,4 +1,4 @@
-ami_name = "CSYE6225_EC2_LINUX"
+ami_name = "CSYE6225_EC2_Linux"
 
 aws_region = "us-east-1"
 
