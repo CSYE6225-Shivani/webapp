@@ -81,7 +81,7 @@ source "amazon-ebs" "my-ami" {
   ssh_agent_auth          = false
   temporary_key_pair_type = "rsa"
   tag                     = {
-    Name = "packer-${var.app_name}"
+    Name = "AMI-${var.ami_name}"
   }
 
   aws_polling {
