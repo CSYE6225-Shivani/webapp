@@ -13,6 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Packer Init
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: init
+          target: aws-linux2.pkr.hcl
+          working_directory: packer
+        env:
+          PACKER_LOG: 1
+
       - name: Packer Build
         uses: hashicorp/packer-github-actions@master
         with:
