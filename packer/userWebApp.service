@@ -4,18 +4,15 @@ After=syslog.target
 
 [Service]
 User=ec2-user
-Environment="HOST_NAME=localhost"
-Environment="DB_PORT=5432"
-Environment="DB_NAME=userdatabase"
-Environment="DB_USERNAME=shivanichavan"
-Environment="DATABASE_PASSWORD=Chavan123"
-ExecStart=/home/ec2-user/webapp/UserWebApp-0.0.1-SNAPSHOT.jar
+
 SuccessExitStatus=143
 Restart=always
 RestartSec=10
+SyslogIdentifier=Inventory-webapp
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=Inventory-webapp
+
+ExecStart=/usr/bin/java -jar /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar -HOST_NAME=localhost -DB_PORT=5432 -DB_NAME=userdatabase -DB_USERNAME=userdatabase -DB_PASSWORD=Chavan123
 
 [Install]
 WantedBy=multi-user.target

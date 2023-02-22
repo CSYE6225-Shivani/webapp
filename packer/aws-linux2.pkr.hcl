@@ -19,11 +19,6 @@ variable "aws_secret_access_key" {
   default = ""
 }
 
-variable "aws_profile" {
-  type    = string
-  default = ""
-}
-
 variable "ami_name" {
   type        = string
   description = "Name of the AMI"
@@ -85,6 +80,9 @@ source "amazon-ebs" "my-ami" {
   ami_users               = "${var.ami_user}"
   ssh_agent_auth          = false
   temporary_key_pair_type = "rsa"
+  tag                     = {
+    Name = "packer-${var.app_name}"
+  }
 
   aws_polling {
     delay_seconds = 120
@@ -98,7 +96,7 @@ source "amazon-ebs" "my-ami" {
   launch_block_device_mappings {
     delete_on_termination = "${var.delete_on_termination}"
     device_name           = "/dev/xvda"
-    volume_size           = 8
+    volume_size           = 50
     volume_type           = "gp2"
   }
 }
@@ -109,7 +107,7 @@ build {
 
   provisioner "file" {
     source      = "../UserWebApp/target/UserWebApp-0.0.1-SNAPSHOT.jar"
-    destination = "/home/ec2-user/"
+    destination = "/tmp/"
   }
 
   provisioner "file" {

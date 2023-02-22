@@ -37,16 +37,13 @@ sudo -u postgres psql -c 'CREATE DATABASE userdatabase;'
 sudo -u postgres psql -c "CREATE USER shivanichavan WITH PASSWORD 'Chavan123';"
 sudo -u postgres psql -c 'GRANT ALL PRIVILEGES ON DATABASE userdatabase TO shivanichavan;'
 
-##Creating a new folder webapp and moving the jar file in webapp
-pwd
-cd
-cd ~/
-sudo mkdir -m755 webapp
-sudo mv /home/ec2-user/UserWebApp-0.0.1-SNAPSHOT.jar webapp/UserWebApp-0.0.1-SNAPSHOT.jar
-cd webapp
-
 ##Moving the service file to systemd location
+echo "Transferring Jar File"
+sudo mv /tmp/UserWebApp-0.0.1-SNAPSHOT.jar /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar
+sudo chmod 544 /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar
+
 sudo mv /tmp/userWebApp.service /etc/systemd/system/userWebApp.service
+sudo systemctl daemon-reload
 sudo systemctl enable userWebApp.service
 sudo systemctl start userWebApp.service
 
