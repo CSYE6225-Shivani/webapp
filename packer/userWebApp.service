@@ -12,7 +12,7 @@ SyslogIdentifier=Inventory-webapp
 StandardOutput=syslog
 StandardError=syslog
 
-ExecStart=/usr/bin/java -jar /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar -API_PORT=8080 -HOST_NAME=localhost -DB_PORT=5432 -DB_NAME=userdatabase -DB_USERNAME=shivanichavan -DB_PASSWORD=Chavan123
+ExecStart=/usr/bin/java -jar /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar --API_PORT=8080 --HOST_NAME=localhost --DB_PORT=5432 --DB_NAME=userdatabase --DB_USERNAME=shivanichavan --DB_PASSWORD=Chavan123
 
 [Install]
 WantedBy=multi-user.target
