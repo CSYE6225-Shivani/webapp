@@ -1,5 +1,8 @@
 # webapp
 
+-------------
+# Assignment 1
+
 **Tech-Stack used:**
 
 **Back-end technology:** Spring Boot, Hibernate & Spring Data JPA
@@ -65,6 +68,7 @@ REST API Endpoints (Change according to Port):
 
    http://localhost:8080/v1/user/{userId}
 
+# _Assignment 2_
 
 5. Create Product
 
@@ -89,3 +93,26 @@ REST API Endpoints (Change according to Port):
 9. PATCH - Update product
 
    http://localhost:8080/v1/product/{productId}
+
+
+# _Assignment 4_
+1. git clone the project folder to local machine -
+
+   `git clone git@github.com:CSYE6225-Shivani/webapp.git`
+
+
+2. Perform a code change
+
+
+3. Push the code change to GitHub which will trigger CI workflow and generate AMI ID.
+
+
+4. Copy generated AMI ID 
+
+
+5. Go to [aws-infra](git@github.com:CSYE6225-Shivani/aws-infra.git) and clone the repository to your local machine
+   
+   `git clone git@github.com:CSYE6225-Shivani/aws-infra.git`
+
+
+
