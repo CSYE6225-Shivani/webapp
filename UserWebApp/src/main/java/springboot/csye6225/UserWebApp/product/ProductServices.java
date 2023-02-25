@@ -129,7 +129,7 @@ public class ProductServices {
         }
     }
 
-    private Product fetchProduct(Long productId)
+    public Product fetchProduct(Long productId)
     {
         List<Product> productList;
         productList = productRepository.findAll();
