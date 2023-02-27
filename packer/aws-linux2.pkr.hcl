@@ -79,7 +79,7 @@ locals {
 #--------------------------------------------------------------------
 source "amazon-ebs" "my-ami" {
   region                  = "${var.aws_region}"
-  ami_name                = "${var.ami_name}-${local.timestamp}"
+  #ami_name                = "${var.ami_name}-${local.timestamp}"
   ami_description         = "${var.ami_description}"
   access_key              = "${var.aws_access_key_id}"
   secret_key              = "${var.aws_secret_access_key}"
