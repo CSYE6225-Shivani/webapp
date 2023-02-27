@@ -11,12 +11,12 @@ packer {
 #-----------------------------------------------------------
 variable "aws_access_key_id" {
   type    = string
-  default = ""
+  default = "AKIA35FCJK2XUNMN7TGQ"
 }
 
 variable "aws_secret_access_key" {
   type    = string
-  default = ""
+  default = "Q2LY0taXljJ6b2V2iyQNAaFSVOzGlBy0KG1a8hI6"
 }
 
 variable "ami_name" {
