@@ -1,11 +1,10 @@
 package springboot.csye6225.UserWebApp.image;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity(name = "imageEntity")
 @Table(name = "image",
-uniqueConstraints = {
+        uniqueConstraints = {
         @UniqueConstraint(
                 name = "s3_bucket_path_unique",
                 columnNames = "s3_bucket_path"
@@ -14,12 +13,20 @@ uniqueConstraints = {
 public class Image {
 
     @Id
+    @SequenceGenerator(
+            name = "image_sequence",
+            sequenceName = "image_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "image_sequence"
+    )
     @Column(
             updatable = false,
-            name = "image_id",
-            nullable = false
+            name = "image_id"
     )
-    private UUID image_id;
+    private Long image_id;
 
     @Column(
             updatable = false,
@@ -47,11 +54,11 @@ public class Image {
     )
     private String s3_bucket_path;
 
-    public UUID getImage_id() {
+    public Long getImage_id() {
         return image_id;
     }
 
-    public void setImage_id(UUID image_id) {
+    public void setImage_id(Long image_id) {
         this.image_id = image_id;
     }
 

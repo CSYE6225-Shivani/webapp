@@ -11,20 +11,11 @@ import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class S3Config {
-//    @Value("${amazonProperties.region}")
-//    private String aws_region;
-//
-//    // Access key id will be read from the application.properties file during the application intialization.
-//    @Value("${amazonProperties.access_key_id}")
-//    private String accessKeyId;
-//    // Secret access key will be read from the application.properties file during the application intialization.
-//    @Value("${amazonProperties.secret_access_key}")
-//    private String secretAccessKey;
 
     public AWSCredentials credentials() {
         AWSCredentials credentials = new BasicAWSCredentials(
-                "AKIA35FCJK2XRLFRHSM2",
-                "U435haQyMOuTIBb3C2RGllTO1yE8hePU95ZJGsqt"
+                "AKIA35FCJK2XQHOFBISS",
+                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
         );
         return credentials;
     }
