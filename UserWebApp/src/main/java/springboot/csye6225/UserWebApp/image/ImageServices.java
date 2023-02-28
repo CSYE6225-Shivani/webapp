@@ -1,6 +1,7 @@
 package springboot.csye6225.UserWebApp.image;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,7 @@ import java.util.*;
 @Service
 public class ImageServices {
 
-    @Autowired
-    private AmazonS3 s3_client;
+    private AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
 
     ImageRepository imageRepository;
     Random random = new Random();
@@ -67,7 +67,7 @@ public class ImageServices {
         return map;
     }
 
-    public ResponseEntity<Object> uploadImage(HttpServletRequest httpRequest, MultipartFile multipartFile, Long product_id )
+    public ResponseEntity<Object> uploadImage(HttpServletRequest httpRequest, MultipartFile multipartFile, Long product_id ) throws IOException
     {
         String userDetails = httpRequest.getHeader("Authorization");
         if(userDetails == null)
@@ -90,12 +90,16 @@ public class ImageServices {
 
         //Converting multipartfile to file object
         File file = null;
-        try {
-            file = convertMultiPart_toFile(multipartFile);
-        }
-        catch (IOException exception)
+
+        if(multipartFile != null)
         {
-            exception.printStackTrace();
+            try {
+                file = convertMultiPart_toFile(multipartFile);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         if(product != null && product.getOwner_user_id() != current.getId())
@@ -147,14 +151,8 @@ public class ImageServices {
             newImage.setS3_bucket_path(s3_bucket_path);
 
             //Saving image to Amazon S3
-            try {
-                PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file);
-                s3_client.putObject(putObjectRequest);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file);
+            s3_client.putObject(putObjectRequest);
 
 //            file.delete();
 

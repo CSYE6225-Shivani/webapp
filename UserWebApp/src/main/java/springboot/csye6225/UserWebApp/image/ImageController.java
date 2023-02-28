@@ -18,7 +18,7 @@ import java.io.IOException;
 @Transactional
 public class ImageController {
     private ImageServices imageServices;
-    S3Config s3Config;
+
     @Autowired
     public ImageController(ImageServices imageServices) {
         this.imageServices = imageServices;
