@@ -1,78 +1,78 @@
-#name: Pull Request to Upstream main
-#
-#on:
-#  push:
-#    branches: [ main ]
-#
-#  workflow_dispatch:
-#
-#jobs:
-#  packer_build:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v2
-#
-#      - name: Upgrade Env
-#        run: |
-#          sudo apt-mark hold grub-efi-amd64-signed
-#          sudo apt-get update --fix-missing
-#          sudo apt-get upgrade
-#
-#      - name: Install Java 11
-#        run: |
-#          sudo apt-get install -y openjdk-11-jdk
-#          java -version
-#          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-#          export PATH=$JAVA_HOME/bin:$PATH
-#          java -version
-#          echo $JAVA_HOME
-#          echo $PATH
-#
-#      - name: Install Maven
-#        run: |
-#          sudo apt install maven -y
-#          mvn -version
-#
-#      - name: Upgrade Env 2
-#        run: |
-#          sudo apt-mark hold grub-efi-amd64-signed
-#          sudo apt-get update --fix-missing
-#          sudo apt-get upgrade
-#
-#      - name: Run Test
-#        run: |
-#          pwd
-#          find . -name "pom.xml"
-#          cd /home/runner/work/webapp/webapp/UserWebApp/
-#          ls -ltrh
-#          mvn test
-#
-#      - name: Create jar file
-#        run: |
-#          cd /home/runner/work/webapp/webapp/UserWebApp/
-#          mvn clean install
-#          echo "Print working directory"
-#          find . -name "*SNAPSHOT*"
-#
-#      - name: Packer Init
-#        uses: hashicorp/packer-github-actions@master
-#        with:
-#          command: init
-#          target: aws-linux2.pkr.hcl
-#          working_directory: packer
-#        env:
-#          PACKER_LOG: 1
-#
-#      - name: Packer Build
-#        uses: hashicorp/packer-github-actions@master
-#        with:
-#          command: build
-#          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
-#          target: aws-linux2.pkr.hcl
-#          working_directory: packer
-#        env:
-#          PACKER_LOG: 1
-#
-#      - name: Confirm Project run
-#        run: echo "End"
+name: Pull Request to Upstream main
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  packer_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Upgrade Env
+        run: |
+          sudo apt-mark hold grub-efi-amd64-signed
+          sudo apt-get update --fix-missing
+          sudo apt-get upgrade
+
+      - name: Install Java 11
+        run: |
+          sudo apt-get install -y openjdk-11-jdk
+          java -version
+          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          java -version
+          echo $JAVA_HOME
+          echo $PATH
+
+      - name: Install Maven
+        run: |
+          sudo apt install maven -y
+          mvn -version
+
+      - name: Upgrade Env 2
+        run: |
+          sudo apt-mark hold grub-efi-amd64-signed
+          sudo apt-get update --fix-missing
+          sudo apt-get upgrade
+
+      - name: Run Test
+        run: |
+          pwd
+          find . -name "pom.xml"
+          cd /home/runner/work/webapp/webapp/UserWebApp/
+          ls -ltrh
+          mvn test
+
+      - name: Create jar file
+        run: |
+          cd /home/runner/work/webapp/webapp/UserWebApp/
+          mvn clean install
+          echo "Print working directory"
+          find . -name "*SNAPSHOT*"
+
+      - name: Packer Init
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: init
+          target: aws-linux2.pkr.hcl
+          working_directory: packer
+        env:
+          PACKER_LOG: 1
+
+      - name: Packer Build
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
+          target: aws-linux2.pkr.hcl
+          working_directory: packer
+        env:
+          PACKER_LOG: 1
+
+      - name: Confirm Project run
+        run: echo "End"
