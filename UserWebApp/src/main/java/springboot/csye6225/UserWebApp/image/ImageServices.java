@@ -30,7 +30,7 @@ public class ImageServices {
 
     ImageRepository imageRepository;
     Random random = new Random();
-    @Value("${aws.s3_bucket_name}")
+    @Value("${aws_s3.s3_bucket_name}")
     private String s3_bucket_name;
 
     @Autowired
