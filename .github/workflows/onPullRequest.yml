@@ -76,6 +76,7 @@ jobs:
           target: aws-linux2.pkr.hcl
           working_directory: packer
         env:
+          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}
           PACKER_LOG: 1
           
       - name: Packer Validate
@@ -86,6 +87,7 @@ jobs:
           target: aws-linux2.pkr.hcl
           working_directory: packer
         env:
+          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}
           PACKER_LOG: 1
 
       - name: Confirm Project run
