@@ -1,8 +1,8 @@
 name: Pull Request to Upstream main
 
 on:
-  push:
-    branches: [ Assignment5 ]
+  pull_request:
+    branches: [ main ]
 
   workflow_dispatch:
 
