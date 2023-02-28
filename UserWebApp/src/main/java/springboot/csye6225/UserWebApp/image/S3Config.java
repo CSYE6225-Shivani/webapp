@@ -12,23 +12,36 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class S3Config {
 
-    public AWSCredentials credentials() {
-        AWSCredentials credentials = new BasicAWSCredentials(
-                "AKIA35FCJK2XQHOFBISS",
-                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
-        );
-        return credentials;
-    }
+    @Value("${aws_region.aws_region}")
+    private String awsRegion;
+
+//    public AWSCredentials credentials() {
+//        AWSCredentials credentials = new BasicAWSCredentials(
+//                "AKIA35FCJK2XQHOFBISS",
+//                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
+//        );
+//        return credentials;
+//    }
+
+//    @Bean
+//    @Primary
+//    public AmazonS3 getS3Client()
+//    {
+//        AmazonS3 amazonS3= AmazonS3ClientBuilder
+//                .standard()
+//                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+//                .withRegion(awsRegion)
+//                .build();
+//        return amazonS3;
+//    }
 
     @Bean
     @Primary
-    public AmazonS3 getS3Client()
+    AmazonS3 amazonS3()
     {
-        AmazonS3 amazonS3= AmazonS3ClientBuilder
+        return AmazonS3ClientBuilder
                 .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
-                .withRegion("us-east-1")
+                .withRegion(awsRegion)
                 .build();
-        return amazonS3;
     }
 }

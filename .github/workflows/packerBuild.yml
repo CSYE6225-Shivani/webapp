@@ -34,12 +34,6 @@ jobs:
           sudo apt install maven -y
           mvn -version
 
-      - name: Upgrade Env 2
-        run: |
-          sudo apt-mark hold grub-efi-amd64-signed
-          sudo apt-get update --fix-missing
-          sudo apt-get upgrade
-
       - name: Run Test
         run: |
           pwd
