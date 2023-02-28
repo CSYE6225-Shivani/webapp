@@ -147,8 +147,15 @@ public class ImageServices {
             newImage.setS3_bucket_path(s3_bucket_path);
 
             //Saving image to Amazon S3
-            PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file);
-            s3_client.putObject(putObjectRequest);
+            try {
+                PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file);
+                s3_client.putObject(putObjectRequest);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
 //            file.delete();
 
             imageRepository.save(newImage);
@@ -344,7 +351,9 @@ public class ImageServices {
         }
         else
         {
+
             s3_client.deleteObject(s3_bucket_name,image.getFile_name());
+
             imageRepository.deleteById(image.getImage_id());
             return new ResponseEntity<>("Image Deleted successfully",HttpStatus.NO_CONTENT);
         }
