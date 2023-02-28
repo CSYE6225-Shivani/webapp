@@ -54,12 +54,6 @@ jobs:
       #          source /etc/profile.d/maven.sh
       #          echo "######################################### shivani 8"
 
-      - name: Upgrade Env 2
-        run: |
-          sudo apt-mark hold grub-efi-amd64-signed
-          sudo apt-get update --fix-missing
-          sudo apt-get upgrade
-
       - name: Run Test
         run: |
           pwd
@@ -89,16 +83,6 @@ jobs:
         with:
           command: validate
           arguments: -var-file=values.auto.pkvars.hcl
-          target: aws-linux2.pkr.hcl
-          working_directory: packer
-        env:
-          PACKER_LOG: 1
-
-      - name: Packer Build
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
           target: aws-linux2.pkr.hcl
           working_directory: packer
         env:

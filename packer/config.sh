@@ -18,7 +18,7 @@ java --version
 #sudo yum install -y apache-maven
 
 ### POSTGRES setup ############################
-echo "Installing POSTGRES"
+echo "Installing POSTGRES Client only psql"
 sudo amazon-linux-extras enable postgresql14
 sudo yum clean metadata && sudo yum install postgresql -y
 
