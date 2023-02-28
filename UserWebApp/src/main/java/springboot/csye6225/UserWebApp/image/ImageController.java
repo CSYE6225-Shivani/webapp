@@ -31,18 +31,19 @@ public class ImageController {
 
     @PostMapping(path = "v1/product/{product_id}/image",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> uploadImage(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile, @PathVariable("product_id") Long product_id) throws IOException
+    public ResponseEntity<Object> uploadImage(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile, @PathVariable("product_id") Long product_id) throws Exception
     {
-        ResponseEntity<Object> result = imageServices.uploadImage(request,multipartFile,product_id);
-        if(!result.getStatusCode().equals(HttpStatus.CREATED))
-        {
-            message.setMessage(result.getBody().toString());
-            message.setMessageToken(result.getStatusCode().toString());
-            return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
-        }
-        else {
-            return new ResponseEntity(result.getBody(),result.getStatusCode());
-        }
+            ResponseEntity<Object> result = imageServices.uploadImage(request,multipartFile,product_id);
+            if(!result.getStatusCode().equals(HttpStatus.CREATED))
+            {
+                message.setMessage(result.getBody().toString());
+                message.setMessageToken(result.getStatusCode().toString());
+                return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+            }
+            else {
+                return new ResponseEntity(result.getBody(),result.getStatusCode());
+            }
+
     }
 
     @GetMapping(path = "v1/product/{product_id}/image/{image_id}")
