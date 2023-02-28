@@ -1,6 +1,6 @@
 package springboot.csye6225.UserWebApp.image;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,17 +20,17 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ImageServices {
 
-    private AmazonS3Client s3_client = new AmazonS3Client();
+    @Autowired
+    private AmazonS3 s3_client;
+
     ImageRepository imageRepository;
     Random random = new Random();
-    @Value("${amazonProperties.s3_bucket_name}")
+    @Value("${aws.s3_bucket_name}")
     private String s3_bucket_name;
 
     @Autowired
@@ -69,7 +69,6 @@ public class ImageServices {
 
     public ResponseEntity<Object> uploadImage(HttpServletRequest httpRequest, MultipartFile multipartFile, Long product_id )
     {
-        System.out.println(multipartFile.getContentType());
         String userDetails = httpRequest.getHeader("Authorization");
         if(userDetails == null)
         {
@@ -89,11 +88,6 @@ public class ImageServices {
         //Fetching Logged in User and product against provided product_id
         Product product = productServices.fetchProduct(product_id);
 
-        if(product == null)
-        {
-            return new ResponseEntity<>("Product does not exist", HttpStatus.BAD_REQUEST);
-        }
-
         //Converting multipartfile to file object
         File file = null;
         try {
@@ -106,7 +100,11 @@ public class ImageServices {
 
         if(product != null && product.getOwner_user_id() != current.getId())
         {
-            return new ResponseEntity<Object>("You can only add image for the product you have created",HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Object>("You can only add image for the product you have uploaded",HttpStatus.FORBIDDEN);
+        }
+        else if(product == null)
+        {
+            return new ResponseEntity<>("Product does not exist", HttpStatus.NOT_FOUND);
         }
         else if(multipartFile.getContentType() == null || multipartFile.isEmpty()){
             return new ResponseEntity<Object>("No file was provided",HttpStatus.BAD_REQUEST);
@@ -139,11 +137,10 @@ public class ImageServices {
             LocalDateTime localNow = LocalDateTime.now();
             ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
 
-            String s3_bucket_path = s3_bucket_name+"/"+random.nextInt()+"/"+UUID.randomUUID()+"/"+product.getName()+file_name;
+            String s3_bucket_path = s3_bucket_name+"/"+file_name;
 
             //Creating an Image object
             Image newImage = new Image();
-            newImage.setImage_id(UUID.randomUUID());
             newImage.setProduct_id(product.getId());
             newImage.setDate_created(timeInZ.toString());
             newImage.setFile_name(file_name);
@@ -156,6 +153,200 @@ public class ImageServices {
 
             imageRepository.save(newImage);
             return new ResponseEntity<Object>(imageJSON(newImage),HttpStatus.CREATED);
+        }
+    }
+
+    private Image fetchImage(Long image_id) {
+        Image image_obj_url = new Image();
+        List<Image> image_list = imageRepository.findAll();
+
+        for(Image i:image_list)
+        {
+            if(image_id == i.getImage_id())
+            {
+                image_obj_url = i;
+            }
+        }
+        return image_obj_url;
+    }
+
+    private List<Image> fetchImageByProductID(Long product_id)
+    {
+        List<Image> all_images_for_prod = new ArrayList<>();
+        List<Image> image_list = imageRepository.findAll();
+        for(Image i: image_list)
+        {
+            if(i.getProduct_id() == product_id)
+            {
+                all_images_for_prod.add(i);
+            }
+        }
+        return all_images_for_prod;
+    }
+
+    public ResponseEntity<Object> getSpecificImageDetails(HttpServletRequest httpRequest, Long product_id, Long image_id) {
+
+        String userDetails = httpRequest.getHeader("Authorization");
+
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+
+        //Authenticating User Credentials
+        ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
+        if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
+                (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
+        {
+            return new ResponseEntity<Object>(req_header.getBody(),req_header.getStatusCode());
+        }
+
+        String[] userCredentials = userDetails == null?null:userServices.decodeLogin(userDetails);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
+
+        //Fetching Logged-in User and product against provided product_id
+        Product product = productServices.fetchProduct(product_id);
+
+        //Fetching image
+        Image image = fetchImage(image_id);
+
+        if(product != null && product.getOwner_user_id() != current.getId())
+        {
+            return new ResponseEntity<Object>("You can only view image details for the product you have created.",HttpStatus.FORBIDDEN);
+        }
+        else if(current == null)
+        {
+            return new ResponseEntity<>("This user does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(product == null)
+        {
+            return new ResponseEntity<>("Product does not exist", HttpStatus.NOT_FOUND);
+        }
+        else if(image == null)
+        {
+            return new ResponseEntity<Object>("This image does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(fetchImageByProductID(product_id).size() == 0)
+        {
+            return new ResponseEntity<>("Image details for this product does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(current.getId() == product.getOwner_user_id() && product.getId() != image.getProduct_id())
+        {
+            return new ResponseEntity<Object>("You cannot access details of an image which is not uploaded by you.",HttpStatus.FORBIDDEN);
+        }
+        else if(fetchImage(image_id).getProduct_id() != product_id)
+        {
+            return new ResponseEntity<>("This image ID is not mapped against provided product ID",HttpStatus.BAD_REQUEST);
+        }
+        else if((current != null && product != null) && (current.getId() != product.getOwner_user_id() || product.getId() != fetchImage(image_id).getProduct_id()))
+        {
+            return new ResponseEntity<>("This request is not allowed",HttpStatus.UNAUTHORIZED);
+        }
+        else
+        {
+            return new ResponseEntity<>(imageJSON(image),HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<Object> getAllImages(HttpServletRequest httpRequest, Long product_id) {
+        String userDetails = httpRequest.getHeader("Authorization");
+
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+
+        //Authenticating User Credentials
+        ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
+        if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
+                (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
+        {
+            return new ResponseEntity<Object>(req_header.getBody(),req_header.getStatusCode());
+        }
+
+        String[] userCredentials = userDetails == null?null:userServices.decodeLogin(userDetails);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
+
+        Product product = productServices.fetchProduct(product_id);
+
+        if(product == null)
+        {
+            return new ResponseEntity<>("Product does not exist", HttpStatus.BAD_REQUEST);
+        }
+        else if(product != null && product.getOwner_user_id() != current.getId())
+        {
+            return new ResponseEntity<Object>("You can only view image list for the product you have created",HttpStatus.FORBIDDEN);
+        }
+        else
+        {
+            return new ResponseEntity<>(fetchImageByProductID(product_id),HttpStatus.OK);
+        }
+    }
+
+
+    public ResponseEntity<Object> deleteAnImageForAProduct(HttpServletRequest httpRequest, Long product_id, Long image_id)
+    {
+        String userDetails = httpRequest.getHeader("Authorization");
+
+        if(userDetails == null)
+        {
+            return new ResponseEntity<>("Please enter your username and password",HttpStatus.UNAUTHORIZED);
+        }
+
+        //Authenticating User Credentials
+        ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
+        if((req_header.getStatusCode().equals(HttpStatus.BAD_REQUEST)) ||
+                (req_header.getStatusCode().equals(HttpStatus.UNAUTHORIZED)))
+        {
+            return new ResponseEntity<Object>(req_header.getBody(),req_header.getStatusCode());
+        }
+
+        String[] userCredentials = userDetails == null?null:userServices.decodeLogin(userDetails);
+        User current = userCredentials.length == 0?null:userServices.fetchUser(userCredentials[0]);
+
+        //Fetching Logged-in User and product against provided product_id
+        Product product = productServices.fetchProduct(product_id);
+
+        //Fetching image
+        Image image = fetchImage(image_id);
+
+        if(product != null && product.getOwner_user_id() != current.getId())
+        {
+            return new ResponseEntity<Object>("You can only delete an image for the product you have created.",HttpStatus.FORBIDDEN);
+        }
+        else if(current == null)
+        {
+            return new ResponseEntity<>("This user does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(product == null)
+        {
+            return new ResponseEntity<>("Product does not exist", HttpStatus.NOT_FOUND);
+        }
+        else if(image == null)
+        {
+            return new ResponseEntity<Object>("This image does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(fetchImageByProductID(product_id).size() == 0)
+        {
+            return new ResponseEntity<>("Image details for this product does not exist",HttpStatus.NOT_FOUND);
+        }
+        else if(current.getId() == product.getOwner_user_id() && product.getId() != image.getProduct_id())
+        {
+            return new ResponseEntity<Object>("You cannot delete an image which is not uploaded by you.",HttpStatus.FORBIDDEN);
+        }
+        else if(fetchImage(image_id).getProduct_id() != product_id)
+        {
+            return new ResponseEntity<>("This image ID is not mapped against provided product ID",HttpStatus.BAD_REQUEST);
+        }
+        else if((current != null && product != null) && (current.getId() != product.getOwner_user_id() || product.getId() != fetchImage(image_id).getProduct_id()))
+        {
+            return new ResponseEntity<>("This request is not allowed",HttpStatus.UNAUTHORIZED);
+        }
+        else
+        {
+            s3_client.deleteObject(s3_bucket_name,image.getFile_name());
+            imageRepository.deleteById(image.getImage_id());
+            return new ResponseEntity<>("Image Deleted successfully",HttpStatus.NO_CONTENT);
         }
     }
 }
