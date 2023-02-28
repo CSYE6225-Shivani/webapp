@@ -2,6 +2,7 @@ package springboot.csye6225.UserWebApp.image;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +38,11 @@ public class S3Config {
 
     @Bean
     @Primary
-    AmazonS3 amazonS3()
+    public AmazonS3 amazonS3()
     {
         return AmazonS3ClientBuilder
                 .standard()
+                .withCredentials(new InstanceProfileCredentialsProvider(false))
                 .withRegion(awsRegion)
                 .build();
     }
