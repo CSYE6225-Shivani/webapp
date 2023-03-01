@@ -18,8 +18,8 @@
 //
 //    public AWSCredentials credentials() {
 //        AWSCredentials credentials = new BasicAWSCredentials(
-//                "access_key_id",
-//                "access_secret"
+//                "AKIA35FCJK2XQHOFBISS",
+//                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
 //        );
 //        return credentials;
 //    }
@@ -36,14 +36,14 @@
 //        return amazonS3;
 //    }
 //
-//    @Bean
-//    @Primary
-//    public AmazonS3 amazonS3()
-//    {
-//        return AmazonS3ClientBuilder
-//                .standard()
-//                .withCredentials(new InstanceProfileCredentialsProvider(false))
-//                .withRegion(awsRegion)
-//                .build();
-//    }
+////    @Bean
+////    @Primary
+////    public AmazonS3 amazonS3()
+////    {
+////        return AmazonS3ClientBuilder
+////                .standard()
+////                .withCredentials(new InstanceProfileCredentialsProvider(false))
+////                .withRegion(awsRegion)
+////                .build();
+////    }
 //}

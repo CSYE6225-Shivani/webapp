@@ -7,16 +7,19 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
+import springboot.csye6225.UserWebApp.image.ImageServices;
 import springboot.csye6225.UserWebApp.message.Message;
 import springboot.csye6225.UserWebApp.user.UserServices;
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping
 @Transactional
 public class ProductController {
-    private ProductServices productServices;
+    @Autowired
+    ProductServices productServices;
+
+    @Autowired
+    ImageServices imageServices;
 
     @Autowired
     UserServices userService;
@@ -25,8 +28,9 @@ public class ProductController {
     Message message;
 
     @Autowired
-    public ProductController(ProductServices productServices) {
+    public ProductController(ProductServices productServices,ImageServices imageServices) {
         this.productServices = productServices;
+        this.imageServices = imageServices;
     }
 
     @PostMapping(produces = "application/json",path = "v1/product")
@@ -60,6 +64,7 @@ public class ProductController {
             return new ResponseEntity<>(result.getBody(),result.getStatusCode());
         }
     }
+
 
     @DeleteMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> deleteProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest)

@@ -28,7 +28,12 @@ public class ImageServices {
 
     private AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
 
-    ImageRepository imageRepository;
+//    @Autowired
+//    private AmazonS3 s3_client;
+
+    @Autowired
+    public ImageRepository imageRepository;
+
     Random random = new Random();
     @Value("${aws_s3.s3_bucket_name}")
     private String s3_bucket_name;
@@ -47,7 +52,7 @@ public class ImageServices {
     public ImageServices() {
     }
 
-    private HashMap<String,String> imageJSON(Image image)
+    public HashMap<String,String> imageJSON(Image image)
     {
         HashMap<String, String> map = new HashMap<>();
         map.put("image_id",image.getImage_id().toString());
@@ -94,7 +99,7 @@ public class ImageServices {
             return new ResponseEntity<>("Product does not exist", HttpStatus.NOT_FOUND);
         }
         else if(multipartFile.getContentType() == null || multipartFile.isEmpty()){
-            return new ResponseEntity<Object>("No file was provided",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>("No image was provided",HttpStatus.BAD_REQUEST);
         }
         else if(!multipartFile.getContentType().equals("image/jpeg") && !multipartFile.getContentType().equals("image/png")
          && !multipartFile.getContentType().equals("image/jpg"))
@@ -124,7 +129,7 @@ public class ImageServices {
             LocalDateTime localNow = LocalDateTime.now();
             ZonedDateTime timeInZ = localNow.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("Z"));
 
-            String s3_bucket_path = s3_bucket_name+"/"+file_name;
+            String s3_bucket_path = s3_bucket_name+"/"+current.getFirst_name()+"/"+current.getId()+"/"+product.getName()+"/"+product.getId()+"/"+file_name;
 
             //Creating an Image object
             Image newImage = new Image();
@@ -146,7 +151,7 @@ public class ImageServices {
         }
     }
 
-    private Image fetchImage(Long image_id) {
+    public Image fetchImage(Long image_id) {
         Image image_obj_url = new Image();
         List<Image> image_list = imageRepository.findAll();
 
@@ -204,17 +209,17 @@ public class ImageServices {
         {
             return new ResponseEntity<Object>("You can only view image details for the product you have created.",HttpStatus.FORBIDDEN);
         }
-        else if(current == null)
+        else if(image == null)
         {
-            return new ResponseEntity<>("This user does not exist",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("This image does not exist",HttpStatus.NOT_FOUND);
         }
         else if(product == null)
         {
             return new ResponseEntity<>("Product does not exist", HttpStatus.NOT_FOUND);
         }
-        else if(image == null)
+        else if(current == null)
         {
-            return new ResponseEntity<Object>("This image does not exist",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Object>("This user does not exist",HttpStatus.NOT_FOUND);
         }
         else if(fetchImageByProductID(product_id).size() == 0)
         {
@@ -269,7 +274,14 @@ public class ImageServices {
         }
         else
         {
-            return new ResponseEntity<>(fetchImageByProductID(product_id),HttpStatus.OK);
+            List<Image> result = fetchImageByProductID(product_id);
+            if(result.size() != 0)
+            {
+                return new ResponseEntity<>(result,HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("There are no images against this product",HttpStatus.NOT_FOUND);
+            }
         }
     }
 
@@ -320,7 +332,7 @@ public class ImageServices {
         {
             return new ResponseEntity<>("Image details for this product does not exist",HttpStatus.NOT_FOUND);
         }
-        else if(current.getId() == product.getOwner_user_id() && product.getId() != image.getProduct_id())
+        else if(product != null && current.getId() == product.getOwner_user_id() && (image != null && product.getId() != image.getProduct_id()))
         {
             return new ResponseEntity<Object>("You cannot delete an image which is not uploaded by you.",HttpStatus.FORBIDDEN);
         }
@@ -339,6 +351,22 @@ public class ImageServices {
 
             imageRepository.deleteById(image.getImage_id());
             return new ResponseEntity<>("Image Deleted successfully",HttpStatus.NO_CONTENT);
+        }
+    }
+
+    public void deleteAllImages(Long productId) {
+        Product product = productServices.fetchProduct(productId);
+        if(product != null)
+        {
+            List<Image> imageList = fetchImageByProductID(productId);
+
+            System.out.println(imageList.toString());
+            if (imageList.size() != 0) {
+                for (Image each_image : imageList) {
+                    s3_client.deleteObject(s3_bucket_name, each_image.getFile_name());
+                    imageRepository.deleteById(each_image.getImage_id());
+                }
+            }
         }
     }
 }

@@ -11,13 +11,13 @@ import springboot.csye6225.UserWebApp.message.Message;
 import springboot.csye6225.UserWebApp.product.ProductServices;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @RestController
 @RequestMapping
 @Transactional
 public class ImageController {
-    private ImageServices imageServices;
+    @Autowired
+    ImageServices imageServices;
 
     @Autowired
     public ImageController(ImageServices imageServices) {
