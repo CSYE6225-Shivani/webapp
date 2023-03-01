@@ -1,9 +1,15 @@
 package springboot.csye6225.UserWebApp.product;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import springboot.csye6225.UserWebApp.image.Image;
+import springboot.csye6225.UserWebApp.image.ImageRepository;
+import springboot.csye6225.UserWebApp.image.ImageServices;
 import springboot.csye6225.UserWebApp.message.Message;
 import springboot.csye6225.UserWebApp.user.User;
 import springboot.csye6225.UserWebApp.user.UserRepository;
@@ -23,14 +29,25 @@ public class ProductServices {
     @Autowired
     UserServices userServices;
 
+    @Value("${aws_s3.s3_bucket_name}")
+    private String s3_bucket_name;
+
+    private AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
+
+    @Autowired
+    ImageServices imageServices;
+
     ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
     @Autowired
     public ProductServices(ProductRepository productRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           ImageRepository imageRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.imageRepository = imageRepository;
     }
 
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, Product product) {
@@ -185,6 +202,16 @@ public class ProductServices {
             if(product != null)
             {
                 productRepository.deleteById(productId);
+                List<Image> imageList = imageServices.fetchImageByProductID(productId);
+                if(imageList.size() != 0)
+                {
+                    for(Image each_image:imageList)
+                    {
+                        s3_client.deleteObject(s3_bucket_name,each_image.getFile_name());
+                        imageRepository.deleteById(each_image.getImage_id());
+                    }
+                }
+
                 return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.NO_CONTENT);
             }
             else {
