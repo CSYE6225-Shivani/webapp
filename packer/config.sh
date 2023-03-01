@@ -43,6 +43,7 @@ sudo chmod 544 /usr/bin/UserWebApp-0.0.1-SNAPSHOT.jar
 ##Moving the service file to systemd location
 echo "Enabling Application as a Linux systemd service for auto-start on reboot"
 sudo mv /tmp/userWebApp.service /etc/systemd/system/userWebApp.service
+sudo touch /etc/systemd/system/service.env
 sudo systemctl daemon-reload
 sudo systemctl enable userWebApp.service
 #sudo systemctl start userWebApp.service

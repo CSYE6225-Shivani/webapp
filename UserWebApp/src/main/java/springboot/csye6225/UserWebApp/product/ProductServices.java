@@ -210,8 +210,8 @@ public class ProductServices {
         else {
             if(product != null)
             {
-                productRepository.deleteById(productId);
                 imageServices.deleteAllImages(productId);
+                productRepository.deleteById(productId);
                 return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.NO_CONTENT);
             }
             else {
