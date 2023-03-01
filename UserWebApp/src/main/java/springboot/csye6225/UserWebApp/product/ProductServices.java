@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import springboot.csye6225.UserWebApp.image.Image;
 import springboot.csye6225.UserWebApp.image.ImageRepository;
 import springboot.csye6225.UserWebApp.image.ImageServices;
 import springboot.csye6225.UserWebApp.message.Message;
@@ -21,7 +20,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductServices {
@@ -34,12 +32,19 @@ public class ProductServices {
 
     private AmazonS3 s3_client = AmazonS3ClientBuilder.defaultClient();
 
+//    @Autowired
+//    private AmazonS3 s3_client;
+
+    @Autowired
+    public ProductRepository productRepository;
+
     @Autowired
     ImageServices imageServices;
 
-    ProductRepository productRepository;
-    private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
+    @Autowired
+    public UserRepository userRepository;
+    @Autowired
+    public ImageRepository imageRepository;
 
     @Autowired
     public ProductServices(ProductRepository productRepository,
@@ -48,6 +53,9 @@ public class ProductServices {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.imageRepository = imageRepository;
+    }
+
+    public ProductServices() {
     }
 
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, Product product) {
@@ -176,7 +184,8 @@ public class ProductServices {
         return map;
     }
 
-    public ResponseEntity<Object> deleteProduct(HttpServletRequest httpRequest, Long productId) {
+    public ResponseEntity<Object> deleteProduct(HttpServletRequest httpRequest, Long productId)
+    {
         ResponseEntity<Object> req_header = userServices.performBasicAuth(httpRequest);
         String userDetails = httpRequest.getHeader("Authorization");
         if(userDetails == null)
@@ -202,16 +211,7 @@ public class ProductServices {
             if(product != null)
             {
                 productRepository.deleteById(productId);
-                List<Image> imageList = imageServices.fetchImageByProductID(productId);
-                if(imageList.size() != 0)
-                {
-                    for(Image each_image:imageList)
-                    {
-                        s3_client.deleteObject(s3_bucket_name,each_image.getFile_name());
-                        imageRepository.deleteById(each_image.getImage_id());
-                    }
-                }
-
+                imageServices.deleteAllImages(productId);
                 return new ResponseEntity<Object>("Product deleted successfully",HttpStatus.NO_CONTENT);
             }
             else {
