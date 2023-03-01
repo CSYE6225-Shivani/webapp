@@ -1,8 +1,9 @@
 #!/bin/bash
 
 ### Update ############################
-echo "Updating packages on Amazon_Linux_2"
+echo "Updating & upgrading packages on Amazon_Linux_2"
 sudo yum update -y
+sudo yum upgrade -y
 
 ### JAVA setup ############################
 echo "Installing Java"

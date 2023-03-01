@@ -13,11 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Upgrade Env
-#        run: |
-#          sudo apt-mark hold grub-efi-amd64-signed
-#          sudo apt-get update --fix-missing
-#          sudo apt-get upgrade
+      - name: Upgrade Env
+        run: |
+          sudo apt-mark hold grub-efi-amd64-signed
+          sudo apt-get update --fix-missing
+          sudo apt-get upgrade
 
       - name: Install Java 11
         run: |
