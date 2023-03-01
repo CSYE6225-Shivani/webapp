@@ -16,25 +16,25 @@
 //    @Value("${aws_region.aws_region}")
 //    private String awsRegion;
 //
-////    public AWSCredentials credentials() {
-////        AWSCredentials credentials = new BasicAWSCredentials(
-////                "AKIA35FCJK2XQHOFBISS",
-////                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
-////        );
-////        return credentials;
-////    }
+//    public AWSCredentials credentials() {
+//        AWSCredentials credentials = new BasicAWSCredentials(
+//                "access_key_id",
+//                "access_secret"
+//        );
+//        return credentials;
+//    }
 //
-////    @Bean
-////    @Primary
-////    public AmazonS3 getS3Client()
-////    {
-////        AmazonS3 amazonS3= AmazonS3ClientBuilder
-////                .standard()
-////                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
-////                .withRegion(awsRegion)
-////                .build();
-////        return amazonS3;
-////    }
+//    @Bean
+//    @Primary
+//    public AmazonS3 getS3Client()
+//    {
+//        AmazonS3 amazonS3= AmazonS3ClientBuilder
+//                .standard()
+//                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+//                .withRegion(awsRegion)
+//                .build();
+//        return amazonS3;
+//    }
 //
 //    @Bean
 //    @Primary

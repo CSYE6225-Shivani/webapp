@@ -2,6 +2,7 @@ package springboot.csye6225.UserWebApp.image;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +16,8 @@ import springboot.csye6225.UserWebApp.user.User;
 import springboot.csye6225.UserWebApp.user.UserServices;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -45,15 +45,6 @@ public class ImageServices {
     }
 
     public ImageServices() {
-    }
-
-    private File convertMultiPart_toFile(MultipartFile multipartFile) throws IOException
-    {
-        File file = new File(multipartFile.getOriginalFilename());
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        fileOutputStream.write(multipartFile.getBytes());
-        fileOutputStream.close();
-        return file;
     }
 
     private HashMap<String,String> imageJSON(Image image)
@@ -89,22 +80,14 @@ public class ImageServices {
         Product product = productServices.fetchProduct(product_id);
 
         //Converting multipartfile to file object
-        File file = null;
-
-        if(multipartFile != null)
-        {
-            try {
-                file = convertMultiPart_toFile(multipartFile);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        InputStream file = multipartFile.getInputStream();
 
         if(product != null && product.getOwner_user_id() != current.getId())
         {
             return new ResponseEntity<Object>("You can only add image for the product you have uploaded",HttpStatus.FORBIDDEN);
+        }
+        else if (s3_bucket_name == null) {
+            return new ResponseEntity<>("Bucket is not created.",HttpStatus.BAD_REQUEST);
         }
         else if(product == null)
         {
@@ -150,11 +133,13 @@ public class ImageServices {
             newImage.setFile_name(file_name);
             newImage.setS3_bucket_path(s3_bucket_path);
 
-            //Saving image to Amazon S3
-            PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file);
-            s3_client.putObject(putObjectRequest);
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(multipart_filesize);
+            objectMetadata.setContentType(multipartFile.getContentType());
 
-//            file.delete();
+            //Saving image to Amazon S3
+            PutObjectRequest putObjectRequest = new PutObjectRequest(s3_bucket_name,file_name,file,objectMetadata);
+            s3_client.putObject(putObjectRequest);
 
             imageRepository.save(newImage);
             return new ResponseEntity<Object>(imageJSON(newImage),HttpStatus.CREATED);
@@ -175,7 +160,7 @@ public class ImageServices {
         return image_obj_url;
     }
 
-    private List<Image> fetchImageByProductID(Long product_id)
+    public List<Image> fetchImageByProductID(Long product_id)
     {
         List<Image> all_images_for_prod = new ArrayList<>();
         List<Image> image_list = imageRepository.findAll();
