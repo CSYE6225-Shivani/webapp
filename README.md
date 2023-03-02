@@ -114,5 +114,31 @@ REST API Endpoints (Change according to Port):
    
    `git clone git@github.com:CSYE6225-Shivani/aws-infra.git`
 
+# _Assignment 5_
+1. git clone the project folder to local machine -
+
+   git clone git@github.com:CSYE6225-Shivani/webapp.git
+
+2. Perform a code change
+3. Push the code change to GitHub which will trigger CI workflow and generate AMI ID.
+4. Copy generated AMI ID
+5. Go to [aws-infra](git@github.com:CSYE6225-Shivani/aws-infra.git) and clone the repository to your local machine
+
+   `git clone git@github.com:CSYE6225-Shivani/aws-infra.git`
+
+## **Goal:**
+To pass RDS & S3 bucket information through user data. Test the following APIs:
+
+Upload Image
+1. http://{{host}}:8080/v1/product/1/image
+
+Get Specific Image Details
+2. http://{{host}}:8080/v1/product/1/image/1
+
+Get All img Details for a Product
+3. http://{{host}}:8080/v1/product/1/image
+
+Delete Image for a Product
+4. http://{{host}}:8080/v1/product/1/image/
 
 
