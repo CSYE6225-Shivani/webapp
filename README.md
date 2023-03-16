@@ -104,7 +104,7 @@ REST API Endpoints (Change according to Port):
 2. Perform a code change
 
 
-3. Push the code change to GitHub which will trigger CI workflow and generate AMI ID.
+3. Push the code change to GitHub which will trigger CI workflow and generate AMI ID in dev account to be shared with demo account.
 
 
 4. Copy generated AMI ID 
