@@ -1,5 +1,7 @@
 package springboot.csye6225.UserWebApp.image;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping
 @Transactional
 public class ImageController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     ImageServices imageServices;
 
@@ -33,30 +37,37 @@ public class ImageController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> uploadImage(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile, @PathVariable("product_id") Long product_id) throws Exception
     {
-            ResponseEntity<Object> result = imageServices.uploadImage(request,multipartFile,product_id);
-            if(!result.getStatusCode().equals(HttpStatus.CREATED))
-            {
-                message.setMessage(result.getBody().toString());
-                message.setMessageToken(result.getStatusCode().toString());
-                return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
-            }
-            else {
-                return new ResponseEntity(result.getBody(),result.getStatusCode());
-            }
+        logger.info("Inside uploadImage controller");
+        ResponseEntity<Object> result = imageServices.uploadImage(request,multipartFile,product_id);
+        if(!result.getStatusCode().equals(HttpStatus.CREATED))
+        {
+            message.setMessage(result.getBody().toString());
+            message.setMessageToken(result.getStatusCode().toString());
+            logger.info("Exiting uploadImage controller");
+            return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
+        }
+        else
+        {
+            logger.info("Exiting uploadImage controller");
+            return new ResponseEntity(result.getBody(),result.getStatusCode());
+        }
 
     }
 
     @GetMapping(path = "v1/product/{product_id}/image/{image_id}")
     public ResponseEntity<Object> getSpecificImageDetails(HttpServletRequest request, @PathVariable("product_id") Long product_id, @PathVariable("image_id") Long image_id)
     {
+        logger.info("Inside getSpecificImageDetails controller");
         ResponseEntity<Object> result = imageServices.getSpecificImageDetails(request,product_id,image_id);
         if(!result.getStatusCode().equals(HttpStatus.OK))
         {
             message.setMessage(result.getBody().toString());
             message.setMessageToken(result.getStatusCode().toString());
+            logger.info("Exiting getSpecificImageDetails controller");
             return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
         }
         else {
+            logger.info("Exiting getSpecificImageDetails controller");
             return new ResponseEntity(result.getBody(),result.getStatusCode());
         }
     }
@@ -65,14 +76,17 @@ public class ImageController {
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getAllImagesForAProduct(HttpServletRequest request,@PathVariable("product_id") Long product_id)
     {
+        logger.info("Inside getAllImagesForAProduct controller");
         ResponseEntity<Object> result = imageServices.getAllImages(request,product_id);
         if(!result.getStatusCode().equals(HttpStatus.OK))
         {
             message.setMessage(result.getBody().toString());
             message.setMessageToken(result.getStatusCode().toString());
+            logger.info("Exiting getAllImagesForAProduct controller");
             return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
         }
         else {
+            logger.info("Exiting getAllImagesForAProduct controller");
             return new ResponseEntity(result.getBody(),result.getStatusCode());
         }
     }
@@ -80,14 +94,17 @@ public class ImageController {
     @DeleteMapping(path = "v1/product/{product_id}/image/{image_id}")
     public ResponseEntity<Object> deleteAnImageForAProduct(HttpServletRequest request, @PathVariable("product_id") Long product_id, @PathVariable("image_id") Long image_id)
     {
+        logger.info("Inside deleteAnImageForAProduct controller");
         ResponseEntity<Object> result = imageServices.deleteAnImageForAProduct(request,product_id,image_id);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
         {
             message.setMessage(result.getBody().toString());
             message.setMessageToken(result.getStatusCode().toString());
+            logger.info("Exiting deleteAnImageForAProduct controller");
             return new ResponseEntity<>(productServices.getJSONMessageBody(message),result.getStatusCode());
         }
         else {
+            logger.info("Exiting deleteAnImageForAProduct controller");
             return new ResponseEntity(result.getBody(),result.getStatusCode());
         }
     }
