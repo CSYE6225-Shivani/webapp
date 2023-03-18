@@ -125,6 +125,15 @@ build {
     script = "config.sh"
   }
 
+  provisioner "shell" {
+    script = "cloud_watch.sh"
+  }
+
+  provisioner "file" {
+    source = "../UserWebApp/amazon-cloudwatch-agent.json"
+    destination = "/usr/bin/amazon-cloudwatch-agent.json"
+  }
+
   post-processor "manifest" {
     output     = "manifest.json"
     strip_path = true
