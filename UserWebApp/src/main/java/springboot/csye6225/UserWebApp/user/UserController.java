@@ -1,5 +1,6 @@
 package springboot.csye6225.UserWebApp.user;
 
+import com.timgroup.statsd.StatsDClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,11 @@ import org.slf4j.Logger;
 @RequestMapping
 public class UserController {
 
+    @Autowired
+    private StatsDClient metrics;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    //private StatsDClient metrics = new NonBlockingStatsDClient("csye6225_statsd","localhost",8125);
 
     private UserServices userServices;
 
@@ -30,6 +35,7 @@ public class UserController {
     @GetMapping(produces = "application/json",path = "/healthz")
     public ResponseEntity<Object> healthy()
     {
+        metrics.incrementCounter("Health Check Controller");
         logger.info("Inside health check controller");
         message.setMessage("Everything is OK");
         message.setMessageToken("200 OK");
@@ -46,6 +52,7 @@ public class UserController {
     @GetMapping(produces = "application/json", path = "v1/user/{userId}")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getUserDetails(@PathVariable("userId") Long id, HttpServletRequest httpRequest){
+        metrics.incrementCounter("getUserDetails Controller");
         logger.info("Inside getUserDetails controller");
         ResponseEntity<Object> result = userServices.getUserDetails(id,httpRequest);
 
@@ -65,6 +72,7 @@ public class UserController {
 
     @PostMapping(produces = "application/json", path = "v1/user")
     public ResponseEntity<Object> registerNewUser(@RequestBody User user){
+        metrics.incrementCounter("registerNewUser Controller");
         logger.info("Inside registerNewUser controller");
         ResponseEntity<Object> result = userServices.registerNewUser(user);
         if(!result.getStatusCode().equals(HttpStatus.CREATED)){
@@ -88,6 +96,7 @@ public class UserController {
     @PutMapping(produces = "application/json",path = "v1/user/{userId}")
     public ResponseEntity<Object> updateUserDetails(@PathVariable("userId") Long id, HttpServletRequest httpRequest, @RequestBody User user)
     {
+        metrics.incrementCounter("updateUserDetails Controller");
         logger.info("Inside updateUserDetails controller");
         ResponseEntity<Object> result = userServices.updateUser(httpRequest,user,id);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
