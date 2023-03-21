@@ -1,5 +1,6 @@
 package springboot.csye6225.UserWebApp.image;
 
+import com.timgroup.statsd.StatsDClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 @Transactional
 public class ImageController {
 
+    @Autowired
+    private StatsDClient metrics;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     ImageServices imageServices;
@@ -37,6 +41,7 @@ public class ImageController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> uploadImage(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile, @PathVariable("product_id") Long product_id) throws Exception
     {
+        metrics.incrementCounter("uploadImage");
         logger.info("Inside uploadImage controller");
         ResponseEntity<Object> result = imageServices.uploadImage(request,multipartFile,product_id);
         if(!result.getStatusCode().equals(HttpStatus.CREATED))
@@ -57,6 +62,7 @@ public class ImageController {
     @GetMapping(path = "v1/product/{product_id}/image/{image_id}")
     public ResponseEntity<Object> getSpecificImageDetails(HttpServletRequest request, @PathVariable("product_id") Long product_id, @PathVariable("image_id") Long image_id)
     {
+        metrics.incrementCounter("getSpecificImageDetails");
         logger.info("Inside getSpecificImageDetails controller");
         ResponseEntity<Object> result = imageServices.getSpecificImageDetails(request,product_id,image_id);
         if(!result.getStatusCode().equals(HttpStatus.OK))
@@ -76,6 +82,7 @@ public class ImageController {
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getAllImagesForAProduct(HttpServletRequest request,@PathVariable("product_id") Long product_id)
     {
+        metrics.incrementCounter("getAllImagesForAProduct");
         logger.info("Inside getAllImagesForAProduct controller");
         ResponseEntity<Object> result = imageServices.getAllImages(request,product_id);
         if(!result.getStatusCode().equals(HttpStatus.OK))
@@ -94,6 +101,7 @@ public class ImageController {
     @DeleteMapping(path = "v1/product/{product_id}/image/{image_id}")
     public ResponseEntity<Object> deleteAnImageForAProduct(HttpServletRequest request, @PathVariable("product_id") Long product_id, @PathVariable("image_id") Long image_id)
     {
+        metrics.incrementCounter("deleteAnImageForAProduct");
         logger.info("Inside deleteAnImageForAProduct controller");
         ResponseEntity<Object> result = imageServices.deleteAnImageForAProduct(request,product_id,image_id);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))

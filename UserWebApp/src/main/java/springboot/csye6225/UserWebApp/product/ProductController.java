@@ -1,5 +1,6 @@
 package springboot.csye6225.UserWebApp.product;
 
+import com.timgroup.statsd.StatsDClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ import springboot.csye6225.UserWebApp.user.UserServices;
 @Transactional
 public class ProductController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private StatsDClient metrics;
     @Autowired
     ProductServices productServices;
 
@@ -38,7 +42,7 @@ public class ProductController {
 
     @PostMapping(produces = "application/json",path = "v1/product")
     public ResponseEntity<Object> createProduct(HttpServletRequest httpRequest, @RequestBody Product product){
-
+        metrics.incrementCounter("createProduct");
         logger.info("Inside createProduct controller");
         ResponseEntity<Object> result = productServices.createProduct(httpRequest, product);
         if(!result.getStatusCode().equals(HttpStatus.CREATED))
@@ -60,6 +64,7 @@ public class ProductController {
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getProductDetails(@PathVariable("productId") Long productId)
     {
+        metrics.incrementCounter("getProductDetails");
         logger.info("Inside getProductDetails controller");
         ResponseEntity<Object> result = productServices.getProductDetails(productId);
         if(!result.getStatusCode().equals(HttpStatus.OK))
@@ -80,6 +85,7 @@ public class ProductController {
     @DeleteMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> deleteProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest)
     {
+        metrics.incrementCounter("deleteProduct");
         logger.info("Inside deleteProduct controller");
         ResponseEntity<Object> result = productServices.deleteProduct(httpRequest, productId);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
@@ -98,6 +104,7 @@ public class ProductController {
     @PutMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> updateProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
+        metrics.incrementCounter("updateProduct");
         logger.info("Inside updateProduct controller");
         ResponseEntity<Object> result = productServices.updateProduct(httpRequest,productId,product);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
@@ -117,6 +124,7 @@ public class ProductController {
     @PatchMapping(produces = "application/json",path = "v1/product/{productId}")
     public ResponseEntity<Object> patchProduct(@PathVariable("productId") Long productId, HttpServletRequest httpRequest, @RequestBody Product product)
     {
+        metrics.incrementCounter("patchProduct");
         logger.info("Inside patchProduct controller");
         ResponseEntity<Object> result = productServices.patchProduct(httpRequest,productId,product);
         if(!result.getStatusCode().equals(HttpStatus.NO_CONTENT))
