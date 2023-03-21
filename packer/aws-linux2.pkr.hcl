@@ -126,8 +126,9 @@ build {
   }
 
   provisioner "file" {
-    source = "../UserWebApp/amazon-cloudwatch-agent.json"
+    source      = "../UserWebApp/amazon-cloudwatch-agent.json"
     destination = "/tmp/"
+  }
 
   provisioner "shell" {
     script = "cloud_watch.sh"
