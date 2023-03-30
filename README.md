@@ -141,4 +141,24 @@ Get All img Details for a Product
 Delete Image for a Product
 4. http://{{host}}:8080/v1/product/1/image/
 
+-----------------------
+
+## _Assignment 07:_
+
+Observe logs & metrics in CloudWatch
+1. Install CloudWatch agent.
+2. Configure CloudWatch agent.
+3. Start CloudWatch agent to capture to application logs & metrics.
+
+**Logs:**
+
+To observe logs, go to CloudWatch and click on the
+**csye6225** log group. You will be directed to the **webapp** log stream under which you will be ale to see all the application logs.
+
+**Metrics:**
+
+Under metrics, click on all metrics under Metrics. The application metrics would be viewable under CWAgent.
+
+
+
 
