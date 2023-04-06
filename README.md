@@ -159,6 +159,6 @@ To observe logs, go to CloudWatch and click on the
 
 Under metrics, click on all metrics under Metrics. The application metrics would be viewable under CWAgent.
 
-
+## _Assignment 08:_
 
 
