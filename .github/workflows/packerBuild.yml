@@ -2,7 +2,7 @@ name: Pull Request to Upstream main
 
 on:
   push:
-    branches: [ main ]
+    branches: [ Assignment9.0 ]
 
   workflow_dispatch:
 
@@ -12,63 +12,94 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+#
+#      - name: Upgrade Env
+#        run: |
+#          sudo apt-mark hold grub-efi-amd64-signed
+#          sudo apt-get update --fix-missing
+#          sudo apt-get upgrade
+#
+#      - name: Install Java 11
+#        run: |
+#          sudo apt-get install -y openjdk-11-jdk
+#          java -version
+#          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+#          export PATH=$JAVA_HOME/bin:$PATH
+#          java -version
+#          echo $JAVA_HOME
+#          echo $PATH
+#
+#      - name: Install Maven
+#        run: |
+#          sudo apt install maven -y
+#          mvn -version
+#
+#      - name: Run Test
+#        run: |
+#          pwd
+#          find . -name "pom.xml"
+#          cd /home/runner/work/webapp/webapp/UserWebApp/
+#          ls -ltrh
+#          mvn test
+#
+#      - name: Create jar file
+#        run: |
+#          cd /home/runner/work/webapp/webapp/UserWebApp/
+#          mvn clean install
+#          echo "Print working directory"
+#          find . -name "*SNAPSHOT*"
+#
+#      - name: Packer Init
+#        uses: hashicorp/packer-github-actions@master
+#        with:
+#          command: init
+#          target: aws-linux2.pkr.hcl
+#          working_directory: packer
+#        env:
+#          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}}
+#          PACKER_LOG: 1
+#
+#      - name: Packer Build
+#        uses: hashicorp/packer-github-actions@master
+#        with:
+#          command: build
+#          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
+#          target: aws-linux2.pkr.hcl
+#          working_directory: packer
+#        env:
+#          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}}
+#          PACKER_LOG: 1
 
-      - name: Upgrade Env
-        run: |
-          sudo apt-mark hold grub-efi-amd64-signed
-          sudo apt-get update --fix-missing
-          sudo apt-get upgrade
-
-      - name: Install Java 11
-        run: |
-          sudo apt-get install -y openjdk-11-jdk
-          java -version
-          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-          java -version
-          echo $JAVA_HOME
-          echo $PATH
-
-      - name: Install Maven
-        run: |
-          sudo apt install maven -y
-          mvn -version
-
-      - name: Run Test
-        run: |
-          pwd
-          find . -name "pom.xml"
-          cd /home/runner/work/webapp/webapp/UserWebApp/
-          ls -ltrh
-          mvn test
-
-      - name: Create jar file
-        run: |
-          cd /home/runner/work/webapp/webapp/UserWebApp/
-          mvn clean install
-          echo "Print working directory"
-          find . -name "*SNAPSHOT*"
-
-      - name: Packer Init
-        uses: hashicorp/packer-github-actions@master
+      - name: AWS Configure CLI
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          command: init
-          target: aws-linux2.pkr.hcl
-          working_directory: packer
-        env:
-          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}}
-          PACKER_LOG: 1
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID_PROD}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY_PROD}}
+          aws-region: us-east-1
 
-      - name: Packer Build
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: -var=aws_access_key_id=${{secrets.AWS_ACCESS_KEY_ID}} -var=aws_secret_access_key=${{secrets.AWS_SECRET_ACCESS_KEY}} -var-file=values.auto.pkvars.hcl -color=false -on-error=abort
-          target: aws-linux2.pkr.hcl
-          working_directory: packer
-        env:
-          PACKER_GITHUB_API_TOKEN: ${{secrets.PACKER_GITHUB_API_TOKEN}}
-          PACKER_LOG: 1
+      - name: Get new AMI ID and create new launch template
+        working-directory: packer
+        run: |
+          AMI_ID=ami-0e52adfd75527ac2a
+          echo $AMI_ID
+          aws ec2 describe-launch-templates
+          aws ec2 create-launch-template-version \
+          --launch-template-name launch-template \
+          --source-version 1 \
+          --launch-template-data "ImageId=$AMI_ID"
+
+#      - name: Use latest version of launch template to update autoscaling group
+#        run: |
+#          aws autoscaling update-auto-scaling-group \
+#          --auto-scaling-group-name asg_launch_config \
+#          --launch-template LaunchTemplateName=launch-template,Version='$Latest'
+
+      - name: Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name asg_launch_config
+
+      - name: Confirm Project run
+        run: echo "End of run"
 
       - name: Confirm Project run
         run: echo "End"
