@@ -94,6 +94,3 @@ jobs:
 
       - name: Confirm Project run
         run: echo "End of run"
-
-      - name: Confirm Project run
-        run: echo "End"
