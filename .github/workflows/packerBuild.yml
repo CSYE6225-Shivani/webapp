@@ -93,4 +93,4 @@ jobs:
           aws autoscaling start-instance-refresh --auto-scaling-group-name asg_launch_config
 
       - name: Confirm Project run
-        run: echo "End of run"
+        run: echo "End of workflow"
