@@ -49,7 +49,7 @@ public class UserController {
         return new ResponseEntity<Object>("Please enter userId in the path and auth your creds",HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(produces = "application/json", path = "v1/user/{userId}")
+    @GetMapping(produces = "application/json", path = "v2/user/{userId}")
     @Transactional(readOnly = true)
     public ResponseEntity<Object> getUserDetails(@PathVariable("userId") Long id, HttpServletRequest httpRequest){
         metrics.incrementCounter("getUserDetails Controller");
