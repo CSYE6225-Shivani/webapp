@@ -18,8 +18,8 @@
 //
 //    public AWSCredentials credentials() {
 //        AWSCredentials credentials = new BasicAWSCredentials(
-//                "AKIA35FCJK2XQHOFBISS",
-//                "TTK0QJ6EYfLRxdkMlfR/DKtYNo1KK9Jdw/SicJs4"
+//                "",
+//                ""
 //        );
 //        return credentials;
 //    }
